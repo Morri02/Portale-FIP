@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Player Details - My Basketball Website{% endblock %}
+
+{% block header %}
+    <h1>Player Details</h1>
+{% endblock %}
+
+{% block content %}
+    <div class="player-detail">
+        <h2>{{ player }}</h2>
+        <p>Team: <a href={% url 'main:team-detail' player.team.id %}> {{ player.team }}</a></p>
+        {% if player.profile_img %}
+            <div class="image-container">
+                <img src="{{ player.profile_img.url }}" alt="{{ player.name }} Image" class="player-image">
+            </div>
+        {% else %}
+            <p>No image available.</p>
+        {% endif %}
+        {% block update %}
+        <a href="{% url 'main:update-player' player.pk %}">Update Player</a>
+        {% endblock %}
+    <h2>Stats:</h2>
+    <li>Points: {{ points }}</li>
+    <li>Rebounds: {{ rebounds }}</li>
+    <li>Blocks: {{ blocks }}</li>
+    </div>
+
+{% endblock %}
+
+{% block styles %}
+    <style>
+        /* Player Detail Styles */
+        .player-detail {
+            text-align: center;
+        }
+
+        .player-detail h1 {
+            margin: 0;
+        }
+
+        .player-detail p {
+            margin: 10px 0;
+        }
+
+        .player-detail .image-container {
+            margin-top: 20px;
+        }
+
+        .player-detail .player-image {
+            max-width: 600px;
+            max-height: 600px;
+        }
+    </style>
+{% endblock %}

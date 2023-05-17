@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Teams - My Basketball Website{% endblock %}
+
+{% block header %}Teams{% endblock %}
+
+{% block content %}
+    <h2>List of Teams</h2>
+    {% for team in teams %}
+        <div class="team">
+            <h3><a href="{% url 'main:team-detail' team.id  %}"> {{ team }}</a></h3>
+            <ul class="player-list">
+                {% for player in team.players.all %}
+                    <li>{{ player }}</li>
+                {% empty %}
+                    <li>No players in this team</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% empty %}
+        <p>No teams available</p>
+    {% endfor %}
+{% endblock %}
+
+{% block styles %}
+    <style>
+        .team {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .player-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .player-list li {
+            margin-bottom: 5px;
+        }
+    </style>
+{% endblock %}

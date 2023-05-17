@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Player{% endblock %}
+
+{% block content %}
+    <h2>Create a Player</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_table }}
+        <button type="submit">Edit</button>
+    </form>
+
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Players{% endblock %}
+
+{% block header %}Players' List{% endblock %}
+
+{% block content %}
+    <h2>List of Players</h2>
+    <ul>
+        {% for player in object_list %}
+            <li><a href="{% url 'main:player-detail' player.id  %}"> {{ player }}</a> plays for {{ player.team }}<a href="{% url 'main:delete-player' player.id  %}">Delete</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}

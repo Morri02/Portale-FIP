@@ -1,0 +1,11 @@
+{% extends 'detail_player.html' %}
+{% block title %}Player Delete - {{ player.name }}{% endblock %}
+
+{% block update %}{% endblock %}
+
+{% block delete %}
+    <form method="post" action="{% url 'main:delete-player' player.pk %}">
+        {% csrf_token %}
+        <button type="submit">Delete Player</button>
+    </form>
+{% endblock %}

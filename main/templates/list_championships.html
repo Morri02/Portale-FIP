@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}All Championships - My Basketball Website{% endblock %}
+
+{% block header %}<h2>Championships</h2>{% endblock %}
+
+
+{% block content %}
+    <h1>All Championships</h1>
+    <ul class="championship-list">
+        {% for championship in championships %}
+            <li class="championship">
+                <h2>{{ championship.name }}</h2>
+                <p class="championship-info">{{ championship.year }} - {{ championship.location }}</p>
+                <ul class="team-list">
+                    {% for team in championship.teams.all %}
+                        <li class="team"><a href={% url 'main:team-detail' team.id %}> {{ team.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% empty %}
+            <p>No championships found.</p>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block styles %}
+    <style>
+        .championship-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .championship {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .championship h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .championship-info {
+            font-size: 16px;
+            color: #777;
+        }
+
+        .team-list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        .team {
+            margin-bottom: 5px;
+        }
+    </style>
+{% endblock %}

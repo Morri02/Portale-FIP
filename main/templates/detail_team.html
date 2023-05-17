@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Team Details - My Basketball Website{% endblock %}
+
+{% block header %}
+    <h1>Team Details</h1>
+{% endblock %}
+
+{% block content %}
+    <div class="player-detail">
+        <h2>{{ team }}</h2>
+        {% for c in team.championships.all %}
+            <h3>(<a href={% url 'main:list-championships' %}>{{ c.name }}</a>)</h3>
+        {% endfor %}
+        {% if team.img %}
+            <div class="image-container">
+                <img src="{{ team.img.url }}" alt="{{ team.name }} Image" class="team-image">
+            </div>
+        {% else %}
+            <p>No image available.</p>
+        {% endif %}
+    <h3>Players:</h3>
+    {% for player in team.players.all %}
+
+        <li><a href={% url 'main:player-detail' player.id %}> {{ player }}</a></li>
+
+    {% endfor %}
+{#        <a href="{% url 'main:update-player' player.pk %}">Update Player</a>#}
+    </div>
+{% endblock %}
+
+{% block styles %}
+    <style>
+        .team-image {
+            width: auto;
+            height: auto;
+            max-width: 800px;
+            max-height: 500px;
+        }
+    </style>
+{% endblock %}

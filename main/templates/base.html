@@ -1,0 +1,39 @@
+{% load static %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Basketball Website{% endblock %}</title>
+    {% block styles %}{% endblock %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header class="header">
+        <h1>{% block header %}{% endblock %}</h1>
+        <div class="links">
+            <a href="{% url 'main:homepage' %}">Home</a>
+            <a href="{% url 'main:register' %}">Registrati</a>
+            <a href="{% url 'main:log-in' %}">Log In</a>
+            <a href="{% url 'main:create-match' %}">Create Match</a>
+{% comment %}<a href="{% url 'main:admin' %}">Admin</a>{% endcomment %}
+            </div>
+    </header>
+
+    <div class="container">
+        {% block content %}
+            <p>Content goes here.</p>
+        {% endblock %}
+    </div>
+    {% block scripts %}{% endblock %}
+
+    <footer class="footer">
+        {% block footer %}
+            <p>&copy; 2023 My Basketball Website. All rights reserved</p>
+        {% endblock %}
+    </footer>
+
+</body>
+</html>

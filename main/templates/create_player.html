@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+
+{% block title %}Create Player{% endblock %}
+
+
+{% block content %}
+    <h2>Create a Player</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% crispy form %}
+        <button type="submit">Create</button>
+    </form>
+{% endblock %}
+
