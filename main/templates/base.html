@@ -18,6 +18,7 @@
             <a href="{% url 'main:register' %}">Registrati</a>
             <a href="{% url 'main:log-in' %}">Log In</a>
             <a href="{% url 'main:create-match' %}">Create Match</a>
+            <a href="{% url 'main:list-matches' %}">List Match</a>
 {% comment %}<a href="{% url 'main:admin' %}">Admin</a>{% endcomment %}
             </div>
     </header>
@@ -25,6 +26,7 @@
     <div class="container">
         {% block content %}
             <p>Content goes here.</p>
+            {% block tabellinoA %}{% endblock %}
         {% endblock %}
     </div>
     {% block scripts %}{% endblock %}

@@ -24,16 +24,31 @@ def init_db():
 
     A1 = ChampionShip(name='Serie A1', location='Italia', year=2023)
     A1.save()
+    cA1 = Calendario(championship=A1)
+    cA1.save()
     A2 = ChampionShip(name='Serie A2', location='Italia', year=2023)
     A2.save()
+    cA2 = Calendario(championship=A2)
+    cA2.save()
     B1 = ChampionShip(name='Serie B1', location='Italia', year=2023)
     B1.save()
+    cB1 = Calendario(championship=B1)
+    cB1.save()
     B2 = ChampionShip(name='Serie B2', location='Italia', year=2023)
     B2.save()
+    cB2 = Calendario(championship=B2)
+    cB2.save()
+
     C = ChampionShip(name='Serie C', location='Italia', year=2023)
     C.save()
+    cC = Calendario(championship=C)
+    cC.save()
+    gC = Giornata(num=1, calendario=cC)
+    gC.save()
     D = ChampionShip(name='Serie D', location='Italia', year=2023)
     D.save()
+    cD = Calendario(championship=D)
+    cD.save()
 
     # Serie A1
     Reggiana = Team(name='Pallacanestro Reggiana', main_sponsor='UnaHotels', city='Reggio Emilia', championships=A1)
@@ -52,7 +67,7 @@ def init_db():
     # Serie B2
 
     # Serie C
-    Novellara = Team(name='Pallacnestro Novellara', main_sponsor='Max Devil', city='Novellara', championships=C, img=File(open('static/img/team_000296_2023_CS_PallacanestroNovellara.jpg', 'rb')))
+    Novellara = Team(name='Pallacanestro Novellara', main_sponsor='Max Devil', city='Novellara', championships=C, img=File(open('static/img/team_000296_2023_CS_PallacanestroNovellara.jpg', 'rb')))
     Novellara.save()
     g4 = Player(name='Nicolo', last_name='Ferrari', birth_date='1999-9-12', number=4, team=Novellara)
     g4.save()

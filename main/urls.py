@@ -13,6 +13,7 @@ urlpatterns = [
     path('list/players/', ListPlayerView.as_view(), name='list-players'),
     path('list/teams/', ListTeamView.as_view(), name='list-teams'),
     path('list/championships/', ListChampionshipView.as_view(), name='list-championships'),
+    path('list/matches', ListMatchView.as_view(), name='list-matches'),
     path('players/<int:pk>/', DetailPlayerView.as_view(), name='player-detail'),
     path('teams/<int:pk>/', DetailTeamView.as_view(), name='team-detail'),
     path('testbase/', test_base, name='test-base'),
@@ -30,7 +31,10 @@ urlpatterns = [
 
     #path('player<int:pk>/count/', count_points, name='points-count'),
 
-    path('create/stat/', CreateStatView.as_view(), name='create-stat')
+    path('create/stat/', CreateStatView.as_view(), name='create-stat'),
+    path('create/tabellino/<int:match_id>', create_tabellino, name='create-tabellino'),
+
+    path('detail/match/<int:pk>', DetailMatchView.as_view(), name='match-detail')
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
@@ -38,5 +42,5 @@ urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 check_stats()
 
-#erase_db()
-#init_db()
+# erase_db()
+# init_db()

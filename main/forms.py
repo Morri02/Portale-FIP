@@ -47,3 +47,13 @@ class CreateMatchForm(forms.ModelForm):
     class Meta:
         model = Match
         fields = '__all__'
+
+
+class CreateTabellinoForm(forms.ModelForm):
+
+    def clean(self):
+        pass
+
+    class Meta:
+        model = Tabellino
+        fields = '__all__'

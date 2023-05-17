@@ -1,0 +1,9 @@
+{% extends 'match_detail.html' %}
+
+{% block tabellinoA %}
+    <form method="POST" action={%  url 'main:create-tabellino' match_id %}>
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit">Create</button>
+    </form>
+{% endblock %}

@@ -1,6 +1,6 @@
 from django.core.mail.backends import console
 from django.db.models import Q
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
@@ -139,7 +139,7 @@ def count_points(pk):
     rebounds = 0
     blocks = 0
     for stat in player.stats.all():
-        if stat.valid :
+        if stat.valid:
             points += stat.points
             blocks += stat.blocks
             rebounds += stat.rebounds
@@ -165,3 +165,57 @@ def create_stat(request):
         pass
 
     return render(request, 'create_stat.html', ctx)
+
+def create_tabellino(request, match_id):
+    partita = Match.objects.get(pk=match_id)
+    if request.method == 'POST':
+        form = CreateTabellinoForm(request.POST)
+        if form.is_valid():
+            t = Tabellino()
+            stat1 = form.cleaned_data.get('stat1')
+            t.stat1 = stat1
+            stat2 = form.cleaned_data.get('stat2')
+            if stat2:
+                t.stat2 = stat2
+
+            # stat3 = form.cleaned_data.get('stat3')
+            # stat4 = form.cleaned_data.get('stat4')
+            # stat5 = form.cleaned_data.get('stat5')
+            # stat6 = form.cleaned_data.get('stat6')
+            # stat7 = form.cleaned_data.get('stat7')
+            # stat8 = form.cleaned_data.get('stat8')
+            # stat9 = form.cleaned_data.get('stat9')
+            # stat10 = form.cleaned_data.get('stat10')
+            # stat11 = form.cleaned_data.get('stat11')
+            # stat12 = form.cleaned_data.get('stat12')
+
+            t.save()
+            if not partita.tabellinoA:
+                partita.tabellinoA = t
+                partita.save()
+            elif partita.tabellinoB:
+                partita.tabellinoB = t
+                partita.save()
+            else:
+                print('Tabellini già pieni')
+            return redirect("/main/detail/match/" + str(match_id))
+    else:
+        form = CreateTabellinoForm()
+
+    #TODO: cambia il form in modo da creare lì le stats
+
+    context = {'form': form,
+               'match_id': match_id,
+               'partita': partita}
+    return render(request, 'create_tabellino.html', context)
+
+class DetailMatchView(DetailView):
+    model = Match
+    template_name = 'match_detail.html'
+    context_object_name = 'partita'
+
+
+class ListMatchView(ListView):
+    model = Match
+    template_name = 'list_matches.html'
+    context_object_name = 'partite'
