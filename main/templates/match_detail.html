@@ -2,32 +2,78 @@
 
 
 {% block content %}
+    <h2><a href={% url 'main:team-detail' partita.teamA.id %}> {{ partita.teamA }}</a> vs <a
+            href={% url 'main:team-detail' partita.teamB.id %}> {{ partita.teamB }}</a></h2>
+    <p class="location">Location: {{ partita.location }}</p>
     <div>
-        <h2><a href={% url 'main:team-detail' partita.teamA.id %}> {{ partita.teamA }}</a> vs <a
-                href={% url 'main:team-detail' partita.teamB.id %}> {{ partita.teamB }}</a></h2>
-        <p class="location">Location: {{ partita.location }}</p>
-        {% if partita.tabellinoA or partita.tabellinoB %}
-            <div class="scoreboard">
-                <div class="team-score">
-                    <h3 class="team-name">{{ partita.teamA }}</h3>
-                    <p>{{ match.pointsA }}</p>
-                </div>
-                <div class="vs">
-                    <h3>vs</h3>
-                </div>
-                <div class="team-score">
-                    <h3 class="team-name">{{ partita.teamB }}</h3>
-                    <p>{{ match.pointsB }}</p>
-                </div>
+        <div class="team-scores">
+            <div class="team-score">
+                <h3 class="team-name">{{ partita.teamA.name }}</h3>
+                {% if partita.tabellinoA %}
+                    <h4>{{ partita.pointsA }}</h4>
+                    <li>
+                    {{ partita.tabellinoA.stat1.player }}, {{ partita.tabellinoA.stat1.points }}
+                    {{ partita.tabellinoA.stat2.player }}, {{ partita.tabellinoA.stat2.points }}
+                    </li>
+
+                    <form method="GET" action={% url 'main:create-tabellinoA' partita.id %}>
+                        {% csrf_token %}
+                        <button type="submit">Update</button>
+                {% else %}
+                    <h2>Vuoi inserire il tabellino di {{ partita.teamA.name }}??</h2>
+                    <form method="GET" action={% url 'main:create-tabellinoA' partita.id %}>
+                        {% csrf_token %}
+                        <button type="submit">Create</button>
+                    </form>
+                {% endif %}
             </div>
-            {% else %}
-                {% block tabellinoA %}
-                <h2>Vuoi inserire il tabellino di {{ partita.teamA.name }}??</h2>
-                <form method="GET" action={% url 'main:create-tabellino' partita.id %}>
-                    {% csrf_token %}
-                <button type="submit">Create</button>
-                </form>
-                {% endblock %}
-        {% endif %}
+            <div class="vs">
+                <h3>vs</h3>
+            </div>
+            <div class="team-score">
+                <h3 class="team-name">{{ partita.teamB.name }}</h3>
+                {% if partita.tabellinoB %}
+                    <h4>{{ partita.pointsB }}</h4>
+                    <li>
+                    {{ partita.tabellinoB.stat1.player }}, {{ partita.tabellinoB.stat1.points }}
+                    {{ partita.tabellinoB.stat2.player }}, {{ partita.tabellinoB.stat2.points }}
+                    </li>
+                    <form method="GET" action={% url 'main:create-tabellinoB' partita.id %}>
+                        {% csrf_token %}
+                        <button type="submit">Update</button>
+                {% else %}
+                    <h4>Vuoi inserire il tabellino di {{ partita.teamB.name }}??</h4>
+                    <form method="GET" action={% url 'main:create-tabellinoB' partita.id %}>
+                        {% csrf_token %}
+                        <button type="submit">Create</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    <style>
+        .team-scores {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .team-score {
+            text-align: center;
+            margin: 0 20px;
+        }
+
+        .team-score h3 {
+            font-size: 24px;
+            margin: 10px;
+        }
+
+        .team-score p {
+            font-size: 16px;
+        }
+
+    </style>
 {% endblock %}

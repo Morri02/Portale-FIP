@@ -1,9 +1,45 @@
-{% extends 'match_detail.html' %}
+{% extends 'base.html' %}
 
-{% block tabellinoA %}
-    <form method="POST" action={%  url 'main:create-tabellino' match_id %}>
+{% block content %}
+    <form method="POST" action={% block url %}{% endblock %}>
         {% csrf_token %}
-        {{ form }}
+    {% for i in range %}
+        <li>
+        <label for="#player{{ i }}"><h3>Player {{ i }}:</h3></label>
+            <select name="player{{ i }}" id="#player{{ i }}" multiple>
+                {% for player in players %}
+                    <option>{{ player }}</option>
+                {% endfor %}
+            </select>
+        <br>
+        <input type="number" name="points{{ i }}" id="#points{{ i }}" placeholder="points">
+        <input type="number" name="rebounds{{ i }}" id="#rebounds{{ i }}" placeholder="rebounds">
+        <input type="number" name="blocks{{ i }}" id="#blocks{{ i }}" placeholder="assists">
+        </li>
+    {% endfor %}
+
+        {% comment %}{{ form }}{% endcomment %}
         <button type="submit">Create</button>
     </form>
+{% endblock %}
+
+{% block scripts %}
+<style>
+
+    label{
+        margin-right: 10px;
+    }
+    input{
+        margin-top: 20px;
+    }
+
+    li{
+        list-style-type: none;
+    }
+    h3{
+        margin: 0;
+        display: inline;
+    }
+
+</style>
 {% endblock %}

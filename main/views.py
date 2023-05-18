@@ -166,48 +166,78 @@ def create_stat(request):
 
     return render(request, 'create_stat.html', ctx)
 
-def create_tabellino(request, match_id):
+
+def create_tabellinoA(request, match_id):
+    return create_tabellino(request, match_id, 'A')
+
+def create_tabellinoB(request, match_id):
+    return create_tabellino(request, match_id, 'B')
+
+def create_tabellino(request, match_id, lettera):
+    #TODO Fai una view per fare update del tabellino
     partita = Match.objects.get(pk=match_id)
+    template_name = 'create_tabellino' + lettera +'.html'
+    print(template_name)
+
     if request.method == 'POST':
-        form = CreateTabellinoForm(request.POST)
-        if form.is_valid():
-            t = Tabellino()
-            stat1 = form.cleaned_data.get('stat1')
-            t.stat1 = stat1
-            stat2 = form.cleaned_data.get('stat2')
-            if stat2:
-                t.stat2 = stat2
+        list_inputs = []
+        list_stats = []
+        for i in range(0, 12):
+            list_inputs.append([request.POST.get('player' + str(i + 1)), request.POST.get('points' + str(i + 1)),
+                                request.POST.get('rebounds' + str(i + 1)), request.POST.get('blocks' + str(i + 1))])
+            if not list_inputs[i][0]:
+                break
+            player_id = get_pk_player(list_inputs[i][0])
+            list_stats.append(Stat(player_id=player_id, points=int(list_inputs[i][1]), rebounds=int(list_inputs[i][2]),
+                                   blocks=int(list_inputs[i][3])))
+            list_stats[i].save()
 
-            # stat3 = form.cleaned_data.get('stat3')
-            # stat4 = form.cleaned_data.get('stat4')
-            # stat5 = form.cleaned_data.get('stat5')
-            # stat6 = form.cleaned_data.get('stat6')
-            # stat7 = form.cleaned_data.get('stat7')
-            # stat8 = form.cleaned_data.get('stat8')
-            # stat9 = form.cleaned_data.get('stat9')
-            # stat10 = form.cleaned_data.get('stat10')
-            # stat11 = form.cleaned_data.get('stat11')
-            # stat12 = form.cleaned_data.get('stat12')
+#       Inserimento stats nel tabellino
+        tabellino = Tabellino()
+        tabellino.stat1 = list_stats[0]
+        list_stats[0].valid = True
+        list_stats[0].save()
+        tabellino.save()
 
-            t.save()
-            if not partita.tabellinoA:
-                partita.tabellinoA = t
-                partita.save()
-            elif partita.tabellinoB:
-                partita.tabellinoB = t
-                partita.save()
-            else:
-                print('Tabellini già pieni')
-            return redirect("/main/detail/match/" + str(match_id))
+#       Salvataggio nel team DB
+        total_points = 0
+        for stat in list_stats:
+            total_points += stat.points
+        if lettera == 'A':
+            partita.tabellinoA = tabellino
+            partita.pointsA = total_points
+        elif lettera == 'B':
+            partita.tabellinoB = tabellino
+            partita.pointsB = total_points
+        print(total_points)
+        partita.save()
+
+        print(str(list_stats))
+        return render(request, 'match_detail.html', context={'match_id': match_id, 'partita': partita})
+        #return redirect("/main/detail/match/" + str(match_id))
     else:
         form = CreateTabellinoForm()
 
-    #TODO: cambia il form in modo da creare lì le stats
 
     context = {'form': form,
+               'players': Player.objects.filter(team_id=partita.teamA.id) if lettera == 'A' else Player.objects.filter(team_id=partita.teamB.id),
                'match_id': match_id,
-               'partita': partita}
-    return render(request, 'create_tabellino.html', context)
+               'partita': partita,
+               'range': [i for i in range(1, 13)]}
+
+    return render(request, template_name=template_name, context=context)
+
+
+def get_pk_player(player):
+    l = player.split()
+    players = Player.objects.filter(name=l[0], last_name=l[1], number=int(l[2].replace('#', '')))
+    player_id = 0
+    if players.count() > 1:
+        print('Errore')
+    for player in players:
+        player_id = player.pk
+    return player_id
+
 
 class DetailMatchView(DetailView):
     model = Match

@@ -32,7 +32,8 @@ urlpatterns = [
     #path('player<int:pk>/count/', count_points, name='points-count'),
 
     path('create/stat/', CreateStatView.as_view(), name='create-stat'),
-    path('create/tabellino/<int:match_id>', create_tabellino, name='create-tabellino'),
+    path('create/tabellinoA/<int:match_id>/', create_tabellinoA, name='create-tabellinoA'),
+    path('create/tabellinoB/<int:match_id>/', create_tabellinoB, name='create-tabellinoB'),
 
     path('detail/match/<int:pk>', DetailMatchView.as_view(), name='match-detail')
 ]

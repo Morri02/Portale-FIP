@@ -45,7 +45,7 @@ class Stat(models.Model):
     valid = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.player) + ', ' + str(self.points)
+        return str(self.player) + ', ' + str(self.points) + ', ' + str(self.rebounds) + ', ' + str(self.blocks)
 
 
 class Tabellino(models.Model):
@@ -63,7 +63,7 @@ class Tabellino(models.Model):
     stat12 = models.OneToOneField(Stat, on_delete=models.CASCADE, related_name='stat12', blank=True, null=True)
 
     def __str__(self):
-        return 'Tabellino '
+        return 'Tabellino #' + str(self.pk)
 
     class Meta:
         verbose_name_plural = 'Tabellini'
