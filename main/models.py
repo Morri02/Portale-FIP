@@ -1,3 +1,4 @@
+
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -49,7 +50,7 @@ class Team(models.Model):
                         else:
                             sconfitte += 1
 
-        #print(str(self) + ' ha ' + str(punti) + ' punti')
+        # print(str(self) + ' ha ' + str(punti) + ' punti')
 
         return punti, vittorie, sconfitte
 
@@ -57,6 +58,7 @@ class Team(models.Model):
 class Player(models.Model):
     name = models.CharField(max_length=15)
     last_name = models.CharField(max_length=15)
+    role = models.CharField(max_length=15, default='Guardia')
     birth_date = models.DateTimeField()
     number: int = models.IntegerField()
     team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name='players')
@@ -77,6 +79,12 @@ class Player(models.Model):
 
         return points, rebounds, blocks
 
+    def get_total_matches(self):
+        counter = 0
+        for stat in self.stats.all():
+            counter += 1
+        return counter
+
 
 class Stat(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='stats')
@@ -87,6 +95,8 @@ class Stat(models.Model):
 
     def __str__(self):
         return str(self.player) + ', ' + str(self.points) + ', ' + str(self.rebounds) + ', ' + str(self.blocks)
+
+
 
 
 class Tabellino(models.Model):
@@ -103,8 +113,15 @@ class Tabellino(models.Model):
     stat11 = models.OneToOneField(Stat, on_delete=models.CASCADE, related_name='stat11', blank=True, null=True)
     stat12 = models.OneToOneField(Stat, on_delete=models.CASCADE, related_name='stat12', blank=True, null=True)
 
+    # [stat1, stat2, stat3, stat4, stat5, stat6, stat7, stat8, stat9, stat9, stat10, stat11, stat12]
+
     def __str__(self):
         return 'Tabellino #' + str(self.pk)
+
+    def get_stats(self):
+        print('get stats')
+        return [self.stat1, self.stat2, self.stat3, self.stat4, self.stat5, self.stat6, self.stat7, self.stat8,
+                self.stat9, self.stat9, self.stat10, self.stat11, self.stat12]
 
     class Meta:
         verbose_name_plural = 'Tabellini'
@@ -124,10 +141,10 @@ class Calendario(models.Model):
             squadra_punti_w_l.append([team.id, punti, vittorie, sconfitte])
 
         squadra_punti_w_l.sort(key=lambda x: x[1], reverse=True)
-        #print(str(squadra_punti_w_l))
+        # print(str(squadra_punti_w_l))
         for obj in squadra_punti_w_l:
             classifica.append(obj[0])
-        #print('Classifica aggiornata:' + str(classifica))
+        # print('Classifica aggiornata:' + str(classifica))
         return squadra_punti_w_l
 
     class Meta:

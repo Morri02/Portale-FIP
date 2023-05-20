@@ -38,12 +38,15 @@ urlpatterns = [
 
     path('detail/match/<int:pk>', DetailMatchView.as_view(), name='match-detail'),
 
-    path('test/classifica/<int:pk>', DetailCalendarioView.as_view(), name='detail-calendario'),
+    path('detail/campionato/<int:pk>', DetailCalendarioView.as_view(), name='detail-calendario'),
 
     #log in e out
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('signup/', UserCreateView.as_view(), name='signup'),
+
+    path('get/all/matches', get_all_matches, name='all-matches'),
+    path('get/day<int:day_id>/matches', get_matches_by_giornata, name='day-matches'),
 
 ]
 

@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
 from django.db.models import Q
 from django.shortcuts import render, redirect
@@ -14,6 +14,8 @@ from django.contrib.auth import login
 # Create your views here.
 
 def home_page(request):
+    if request.GET.get('login') == 'ok':
+        return render(request, 'home_page.html', context={'benvenuto': request.user.username})
     return render(request, 'home_page.html')
 
 
@@ -21,6 +23,9 @@ def test_base(request):
     return render(request, 'base.html')
 
 
+# JavaScript retrieve functions
+
+@user_passes_test(lambda u: u.is_staff)
 def get_teams(request):
     championship = request.GET.get('championship')
     if championship == '':
@@ -38,6 +43,26 @@ def get_teams(request):
     # Return the team data as JSON response
     return JsonResponse({'teams': team_data})
 
+@user_passes_test(lambda u: u.is_staff)
+def get_all_matches(request):
+    partite = Match.objects.all()
+
+    print('all')
+    for partita in partite:
+        data = [{'id': partita.id, 'partita': partita.teamA.name + '-' + partita.teamB.name}]
+
+    return JsonResponse({'data': data})
+
+@user_passes_test(lambda u: u.is_staff)
+def get_matches_by_giornata(request, giornata_id):
+    partite = Match.objects.filter(giornata_id=giornata_id)
+
+    print('day')
+
+    return JsonResponse({'partite': partite})
+
+
+# Actual views
 
 def player_search(request):
     players = Player.objects.all()
@@ -91,11 +116,13 @@ class ListChampionshipView(ListView):
 class DetailPlayerView(DetailView):
     model = Player
     template_name = 'detail_player.html'
-    context_object_name = 'player'
+    context_object_name = 'giocatore'
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         points, rebounds, blocks = self.get_object().get_total_points()
+        counter = self.get_object().get_total_matches()
+        ctx['media_punti'] = points / counter if counter != 0 else 0
         ctx['points'] = points
         ctx['rebounds'] = rebounds
         ctx['blocks'] = blocks
@@ -105,7 +132,7 @@ class DetailPlayerView(DetailView):
 class DetailTeamView(DetailView):
     model = Team
     template_name = 'detail_team.html'
-    context_object_name = 'team'
+    context_object_name = 'squadra'
 
 
 class CreatePlayerView(CreateView):
@@ -184,7 +211,7 @@ def create_tabellinoB(request, match_id):
 
 @login_required
 def create_tabellino(request, match_id, lettera):
-    # TODO Fai una view per fare update del tabellino
+    # TODO Fai una view per fare update del tabellino. DA FINIRE
     partita = Match.objects.get(pk=match_id)
     template_name = 'create_tabellino' + lettera + '.html'
     print(template_name)
@@ -223,8 +250,8 @@ def create_tabellino(request, match_id, lettera):
         partita.save()
 
         print(str(list_stats))
-        return render(request, 'match_detail.html', context={'match_id': match_id, 'partita': partita})
-        # return redirect("/main/detail/match/" + str(match_id))
+        #return render(request, 'match_detail.html', context={'match_id': match_id, 'partita': partita})
+        return redirect("/main/detail/match/" + str(match_id))
     else:
         form = CreateTabellinoForm()
 
@@ -253,6 +280,12 @@ class DetailMatchView(DetailView):
     model = Match
     template_name = 'match_detail.html'
     context_object_name = 'partita'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['statsA'] = self.get_object().tabellinoA.get_stats()
+        ctx['statsB'] = self.get_object().tabellinoB.get_stats()
+        return ctx
 
 
 class ListMatchView(ListView):

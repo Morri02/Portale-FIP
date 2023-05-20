@@ -1,10 +1,68 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Player Details - My Basketball Website{% endblock %}
+{% block title %}{{ giocatore }}{% endblock %}
 
-{% block header %}
-    <h1>Player Details</h1>
+
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            {% if giocatore.profile_img %}
+                            <img src="{{ giocatore.profile_img.url }}" alt="Profilo" class="img-fluid rounded-circle w-50">
+                            {% else %}
+                            <img src="{% static 'img/no-profile-picture-icon-1.jpg' %}" alt="Profilo" class="img-fluid rounded-circle w-50">
+                            {% endif %}
+                        </div>
+                        <h2 class="card-title text-center">{{ giocatore.name }} {{ giocatore.last_name }}</h2>
+                        <p class="card-text text-center"><strong>Ruolo:</strong> {{ giocatore.role }}</p>
+                        <p class="card-text text-center"><strong>Data di nascita:</strong> {{ giocatore.birth_date }}</p>
+                        <p class="card-text text-center"><strong>Numero di maglia:</strong> {{ giocatore.number }}</p>
+                        <p class="card-text text-center"><strong>Squadra:</strong><a href="{% url 'main:team-detail' giocatore.team.id %}"> {{ giocatore.team }}</a></p>
+                    </div>
+                </div>
+           <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Statistiche</h5>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Statistica</th>
+                                    <th scope="col">Valore</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Media punti a partita</td>
+                                    <td>{{ media_punti }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Punti questa stagione</td>
+                                    <td>{{ points }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Rimbalzi questa stagione</td>
+                                    <td>{{ rebounds }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Assist questa stagione</td>
+                                    <td>{{ blocks }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+        </div>
+    </div>
 {% endblock %}
+
+
+
+{% comment %}
 
 {% block content %}
     <div class="player-detail">
@@ -53,3 +111,4 @@
         }
     </style>
 {% endblock %}
+{% endcomment %}

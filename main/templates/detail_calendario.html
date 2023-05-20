@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 
+{% block title %}{{ calendario }}{% endblock %}
+
 {% block content %}
     <div class="container">
-        <h2 class="mb-4">Championship Leaderboard</h2>
+        <h2 class="mb-4">Classifica</h2>
         {% if classifica %}
             <table class="table table-striped">
                 <thead>
@@ -37,14 +39,20 @@
 
         {% for giornata in calendario.giornate.all %}
             {% if giornata.partite %}
-                <h3 class="mt-5">{{ giornata }}</h3>
+                <h4 class="mt-5">{{ giornata.num }}° Giornata</h4>
                 <ul class="list-group">
                     {% for partita in giornata.partite.all %}
                         <li class="list-group-item">
                             <div class="row">
-                                <div class="col">{{ partita.teamA }}</div>
-                                <div class="col text-center">{{ partita.pointsA }} - {{ partita.pointsB }}</div>
-                                <div class="col">{{ partita.teamB }}</div>
+                                <div class="col"><a
+                                        href="{% url 'main:team-detail' partita.teamA.id %}"> {{ partita.teamA }}</a><br>{% if not partita.pointsA %}<a
+                                        href="{% url 'main:create-tabellinoA' partita.id %}"> Inserisci Tabellino</a>{% endif %}
+                                </div>
+                                <div class="col text-center">{{ partita.pointsA }} - {{ partita.pointsB }}<br><a href="{% url 'main:match-detail' partita.id %}">Vedi dettagli</a> </div>
+                                <div class="col"><a
+                                        href="{% url 'main:team-detail' partita.teamB.id %}"> {{ partita.teamB }}</a><br>{% if not partita.pointsB %}<a
+                                        href="{% url 'main:create-tabellinoB' partita.id %}"> Inserisci Tabellino</a>{% endif %}
+                                </div>
                             </div>
                         </li>
                     {% endfor %}
@@ -53,5 +61,4 @@
                 <p>No matches scheduled for {{ giornata }}</p>
             {% endif %}
         {% endfor %}
-    </div>
 {% endblock %}

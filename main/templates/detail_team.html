@@ -1,41 +1,34 @@
 {% extends 'base.html' %}
 
-{% block title %}Team Details - My Basketball Website{% endblock %}
+{% block title %}Dettagli {{ team.name }}{% endblock %}
 
-{% block header %}
-    <h1>Team Details</h1>
-{% endblock %}
 
 {% block content %}
-    <div class="player-detail">
-        <h2>{{ team }}</h2>
-        {% for c in team.championships.all %}
-            <h3>(<a href={% url 'main:list-championships' %}>{{ c.name }}</a>)</h3>
-        {% endfor %}
-        {% if team.img %}
-            <div class="image-container">
-                <img src="{{ team.img.url }}" alt="{{ team.name }} Image" class="team-image">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <img src="{{ squadra.img.url }}" alt="{{ squadra.nome }}" class="card-img-top">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ squadra.name }}</h3>
+                        <p class="card-text"><strong>Città:</strong> {{ squadra.city }}</p>
+                        <p class="card-text"><strong>Sponsor:</strong> {{ squadra.main_sponsor }}</p>
+                        <p class="card-text"><strong>Campionato:</strong><a href="{% url 'main:detail-calendario' squadra.championships.calendario.id %}"> {{ squadra.championships }}</a></p>
+                    </div>
+                </div>
             </div>
-        {% else %}
-            <p>No image available.</p>
-        {% endif %}
-    <h3>Players:</h3>
-    {% for player in team.players.all %}
-
-        <li><a href={% url 'main:player-detail' player.id %}> {{ player }}</a></li>
-
-    {% endfor %}
-{#        <a href="{% url 'main:update-player' player.pk %}">Update Player</a>#}
+            <div class="col-md-6">
+                <h3 class="mb-4">Giocatori:</h3>
+                {% if squadra.players.count > 0 %}
+                    <ul class="list-group">
+                        {% for giocatore in squadra.players.all %}
+                            <li class="list-group-item"><a href="{% url 'main:player-detail' giocatore.id %}">{{ giocatore }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">Nessun giocatore registrato per questa squadra</p>
+                {% endif %}
+            </div>
+        </div>
     </div>
-{% endblock %}
-
-{% block styles %}
-    <style>
-        .team-image {
-            width: auto;
-            height: auto;
-            max-width: 800px;
-            max-height: 500px;
-        }
-    </style>
 {% endblock %}
