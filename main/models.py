@@ -1,3 +1,5 @@
+from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 
@@ -24,6 +26,33 @@ class Team(models.Model):
     def __str__(self):
         return self.name + ' of ' + self.city + ', ' + self.main_sponsor
 
+    def get_punti(self, calendario_id):
+        calendario = Calendario.objects.get(pk=calendario_id)
+        punti = 0
+        vittorie = 0
+        sconfitte = 0
+
+        for giornata in Giornata.objects.filter(calendario_id=calendario_id):
+            for partita in Match.objects.filter(giornata_id=giornata.pk):
+                if partita.pointsA and partita.pointsB:
+                    if self.pk == partita.teamA.id:
+                        if partita.pointsA > partita.pointsB:
+                            punti += 2
+                            vittorie += 1
+                        else:
+                            sconfitte += 1
+
+                    if self.pk == partita.teamB.id:
+                        if partita.pointsA < partita.pointsB:
+                            punti += 2
+                            vittorie += 1
+                        else:
+                            sconfitte += 1
+
+        #print(str(self) + ' ha ' + str(punti) + ' punti')
+
+        return punti, vittorie, sconfitte
+
 
 class Player(models.Model):
     name = models.CharField(max_length=15)
@@ -35,6 +64,18 @@ class Player(models.Model):
 
     def __str__(self):
         return self.name + ' ' + self.last_name + ' #' + str(self.number)
+
+    def get_total_points(self):
+        points = 0
+        rebounds = 0
+        blocks = 0
+        for stat in self.stats.all():
+            if stat.valid:
+                points += stat.points
+                blocks += stat.blocks
+                rebounds += stat.rebounds
+
+        return points, rebounds, blocks
 
 
 class Stat(models.Model):
@@ -74,6 +115,20 @@ class Calendario(models.Model):
 
     def __str__(self):
         return str(self.championship)
+
+    def get_classifica(self):
+        classifica = []
+        squadra_punti_w_l = []  # w:win l:loss
+        for team in self.championship.teams.all():
+            punti, vittorie, sconfitte = team.get_punti(self.pk)
+            squadra_punti_w_l.append([team.id, punti, vittorie, sconfitte])
+
+        squadra_punti_w_l.sort(key=lambda x: x[1], reverse=True)
+        #print(str(squadra_punti_w_l))
+        for obj in squadra_punti_w_l:
+            classifica.append(obj[0])
+        #print('Classifica aggiornata:' + str(classifica))
+        return squadra_punti_w_l
 
     class Meta:
         verbose_name_plural = 'Calendari'

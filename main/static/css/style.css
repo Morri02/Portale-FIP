@@ -10,6 +10,7 @@ body {
     background-color: #f5f5f5;
 }
 
+
 .container {
     max-width: 960px;
     margin: 0 auto;
@@ -17,25 +18,8 @@ body {
     text-align: center;
 }
 
-/* Header Styles */
-.header {
-    background-color: #ff9741;
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
-
-.header h1 {
-    display: inline;
-}
-
 
 .links {
-    text-align: right;
-}
-
-.header a {
-    margin-left: 5px;
     text-align: right;
 }
 
@@ -76,7 +60,7 @@ input[type="text"] {
 button[type="submit"] {
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #ff9741;
+    background-color: dodgerblue;
     color: white;
     border: none;
     border-radius: 4px;
@@ -85,7 +69,7 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-    background-color: #ff9741;
+    background-color: deepskyblue;
 }
 
 

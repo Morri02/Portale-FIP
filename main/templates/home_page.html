@@ -1,101 +1,24 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Home - My Basketball Website{% endblock %}
-
-{% block content %}
-    <div class="hero">
-        <h1 class="animated-text">Discover the World of Basketball</h1>
-        <p class="animated-text">Explore teams, players, and more!</p>
-    </div>
-
-    <div class="features">
-        <div class="feature">
-            <img src="{% static 'img/rim.jpg' %}" alt="Feature 1" id="feature-image">
-            <h3><a href="{% url 'main:list-teams' %}">Teams</a></h3>
-            <p>Browse through various basketball teams and their details.</p>
-        </div>
-        <div class="feature">
-            <img src="{% static 'img/basketball.jpg' %}" alt="Feature 2" id="feature-image">
-            <h3><a href="{% url 'main:player_search' %}">Players</a></h3>
-            <p>Get to know your favorite basketball players and their stats.</p>
-        </div>
-        <div class="feature">
-            <img src="{% static 'img/rim.jpg' %}" alt="Feature 3" id="feature-image">
-            <h3><a href="{% url 'main:list-championships' %}">Championships</a></h3>
-            <p>Stay updated with the latest news and events in the basketball world.</p>
-        </div>
-    </div>
-{% endblock %}
+{% block title %}Home- FIP{% endblock %}
 
 {% block styles %}
-    <style>
-        body {
-            background-image: url("{% static 'img/basketball1.jpg' %}");
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: center;
-        }
-        .hero {
-            text-align: center;
-            font-size: larger;
-            padding: 30px 0;
-            color: black;
-        }
-
-        .hero .animated-text {
-            animation: fadeInUp 1s ease-in-out;
-            opacity: 0;
-        }
-
-        .features {
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
-        }
-
-        .feature {
-            text-align: center;
-            margin: 0 20px;
-        }
-
-        .feature img {
-            width: 200px;
-            height: 200px;
-            margin-bottom: 20px;
-            object-fit: cover;
-        }
-
-        .feature h3 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .feature p {
-            font-size: 16px;
-        }
-
-        @keyframes fadeInUp {
-            0% {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
 {% endblock %}
 
-{% block scripts %}
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            const animatedTexts = document.querySelectorAll('.animated-text');
-            animatedTexts.forEach(text => {
-                text.style.animationDelay = `${Math.random() * 0.8}s`;
-                text.style.animationFillMode = 'both';
-            });
-        });
-    </script>
+
+
+
+{% block content %}
+<div>
+    <img src="{% static '/img/logo_fip.png' %}" class="img-fluid border rounded-3 shadow-lg" alt="Example image" height="500px" width="400px" loading="lazy">
+    </div>
+    <h1 class="display-4 fw-bold text-body-emphasis">Benvenuto nel portale FIP</h1>
+    <div class="col-lg-6 mx-auto">
+      <p class="lead mb-4">Scopri i risultati delle partite.</p>
+{% comment %}      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5">
+        <button type="button" class="btn btn-primary btn-lg px-4 me-sm-3" fdprocessedid="jnr8k">Primary button</button>
+        <button type="button" class="btn btn-outline-secondary btn-lg px-4" fdprocessedid="y7gnv">Secondary</button>
+      </div>{% endcomment %}
+    </div>
 {% endblock %}

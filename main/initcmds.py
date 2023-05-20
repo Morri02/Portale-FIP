@@ -1,5 +1,11 @@
 from .models import *
 from django.core.files import File
+from django.contrib.auth.models import Group
+
+def create_groups():
+    players = Group(name='Players')
+    #players.permissions.add()
+    players.save()
 
 def check_stats():
     for stat in Stat.objects.all():
@@ -82,6 +88,6 @@ def init_db():
     g16.save()
     g17 = Player(name='Riccardo', last_name='Bertolini', birth_date='1993-01-02', number=17, team=ReBasket)
     g17.save()
-    Correggio = Team(name='Pallacnestro Correggio', main_sponsor='SPAL', city='Correggio', championships=C)
+    Correggio = Team(name='Pallacanestro Correggio', main_sponsor='SPAL', city='Correggio', championships=C)
     Correggio.save()
 

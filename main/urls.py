@@ -4,6 +4,9 @@ from django.urls import path
 from .views import *
 from django.contrib import admin
 from .initcmds import *
+from django.contrib.auth import views as auth_views
+
+
 
 app_name = 'main'
 
@@ -17,8 +20,6 @@ urlpatterns = [
     path('players/<int:pk>/', DetailPlayerView.as_view(), name='player-detail'),
     path('teams/<int:pk>/', DetailTeamView.as_view(), name='team-detail'),
     path('testbase/', test_base, name='test-base'),
-    path('register/', register_page, name='register'),
-    path('login/', register_page, name='log-in'),
     path('create/player/', CreatePlayerView.as_view(), name='create-player'),
     path('update/player/<int:pk>', UpdatePlayerView.as_view(), name='update-player'),
     path('delete/player/<int:pk>/', DeletePlayerView.as_view(), name='delete-player'),
@@ -31,11 +32,19 @@ urlpatterns = [
 
     #path('player<int:pk>/count/', count_points, name='points-count'),
 
-    path('create/stat/', CreateStatView.as_view(), name='create-stat'),
+    #path('create/stat/', CreateStatView.as_view(), name='create-stat'),
     path('create/tabellinoA/<int:match_id>/', create_tabellinoA, name='create-tabellinoA'),
     path('create/tabellinoB/<int:match_id>/', create_tabellinoB, name='create-tabellinoB'),
 
-    path('detail/match/<int:pk>', DetailMatchView.as_view(), name='match-detail')
+    path('detail/match/<int:pk>', DetailMatchView.as_view(), name='match-detail'),
+
+    path('test/classifica/<int:pk>', DetailCalendarioView.as_view(), name='detail-calendario'),
+
+    #log in e out
+    path('login/', auth_views.LoginView.as_view(), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('signup/', UserCreateView.as_view(), name='signup'),
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,5 +1,7 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import Group
 
 from .models import *
 
@@ -57,3 +59,12 @@ class CreateTabellinoForm(forms.ModelForm):
     class Meta:
         model = Tabellino
         fields = '__all__'
+
+
+class CreateUserPlayer(UserCreationForm):
+
+    def save(self, commit=True):
+        user = super().save(commit)
+        g = Group.objects.get(name='Players')
+        g.user_set.add(user)
+        return user

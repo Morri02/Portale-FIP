@@ -18,7 +18,7 @@
             <p>No image available.</p>
         {% endif %}
         {% block update %}
-        <a href="{% url 'main:update-player' player.pk %}">Update Player</a>
+            <a href="{% url 'main:update-player' player.pk %}" class="btn btn-primary btn-lg px-3 me-sm-3">Update Player</a>
         {% endblock %}
     <h2>Stats:</h2>
     <li>Points: {{ points }}</li>

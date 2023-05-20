@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% comment %}campi: username e password{% endcomment %}
+
+{% block content %}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card mt-5">
+          <div class="card-header">
+            <img src="{% static 'img/logo_fip.png' %}" alt="Logo" height="60px" width="60px">
+          </div>
+          <div class="card-body">
+            <form method="post">
+              {% csrf_token %}
+              {{ form.as_p }}
+              <button type="submit" class="btn btn-primary">Sign In</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% comment %}
+
+{% block content %}
+<main class="form-signin w-100 m-auto">
+  <form>
+    <img class="mb-4" src="{% static '/img/logo_fip.png' %}" alt="" height="200" width="200">
+    <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+
+    <div class="form-floating">
+      <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" fdprocessedid="xv5pmq">
+      <label for="floatingInput">Email address</label>
+    </div>
+    <div class="form-floating">
+      <input type="password" class="form-control" id="floatingPassword" placeholder="Password" fdprocessedid="3y3vyn">
+      <label for="floatingPassword">Password</label>
+    </div>
+
+    <div class="checkbox mb-3">
+      <label>
+        <input type="checkbox" value="remember-me"> Remember me
+      </label>
+    </div>
+    <button class="w-100 btn btn-lg btn-primary" type="submit" fdprocessedid="zwmzzf">Sign in</button>
+  </form>
+</main>
+{% endblock %}{% endcomment %}

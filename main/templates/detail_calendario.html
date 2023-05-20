@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h2 class="mb-4">Championship Leaderboard</h2>
+        {% if classifica %}
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Team</th>
+                    <th>Wins</th>
+                    <th>Losses</th>
+                    <th>Points</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for pos, team, point, win, loss in classifica %}
+                    <tr>
+                        <td>{{ pos }}</td>
+                        <td><a href="{% url 'main:team-detail' team.id %}"
+                               class="text-decoration-none">{{ team.name }}</a></td>
+                        <td>{{ win }}</td>
+                        <td>{{ loss }}</td>
+                        <td>{{ point }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5">No registered teams yet</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No registered teams yet</p>
+        {% endif %}
+
+        {% for giornata in calendario.giornate.all %}
+            {% if giornata.partite %}
+                <h3 class="mt-5">{{ giornata }}</h3>
+                <ul class="list-group">
+                    {% for partita in giornata.partite.all %}
+                        <li class="list-group-item">
+                            <div class="row">
+                                <div class="col">{{ partita.teamA }}</div>
+                                <div class="col text-center">{{ partita.pointsA }} - {{ partita.pointsB }}</div>
+                                <div class="col">{{ partita.teamB }}</div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No matches scheduled for {{ giornata }}</p>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}

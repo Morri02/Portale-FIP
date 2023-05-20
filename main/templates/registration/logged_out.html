@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+  <style>
+    .card {
+      background-color: #f8f9fa;
+    }
+
+    .card-header {
+      background-color: #dc3545;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .card-header img {
+      height: 40px;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+      border-color: #dc3545;
+    }
+
+    .btn-danger:hover {
+      background-color: #c82333;
+      border-color: #bd2130;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card mt-5">
+          <div class="card-header">
+            <img src="path/to/your/logo.png" alt="Logo">
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Logout</h5>
+            <p class="card-text">Are you sure you want to logout?</p>
+            <form method="post">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger">Logout</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

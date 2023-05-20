@@ -65,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'main.context_processors.custom_context',
             ],
         },
     },
@@ -124,4 +125,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
+LOGIN_URL = "/login/" #redireziona alla pagina di login se proa a fare qualcosa che serve essere autenticati
+LOGIN_REDIRECT_URL = '/?login=ok'
 
