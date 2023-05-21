@@ -34,7 +34,10 @@ urlpatterns = [
 
     #path('create/stat/', CreateStatView.as_view(), name='create-stat'),
     path('create/tabellinoA/<int:match_id>/', create_tabellinoA, name='create-tabellinoA'),
+    path('create/nuovo/tabellinoA/<int:match_id>/', create_tabellinoA, name='create-nuovo-tabellinoA'),
     path('create/tabellinoB/<int:match_id>/', create_tabellinoB, name='create-tabellinoB'),
+    path('create/nuovo/tabellinoB/<int:match_id>/', create_tabellinoB, name='create-nuovo-tabellinoB'),
+
 
     path('detail/match/<int:pk>', DetailMatchView.as_view(), name='match-detail'),
 

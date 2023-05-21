@@ -119,7 +119,6 @@ class Tabellino(models.Model):
         return 'Tabellino #' + str(self.pk)
 
     def get_stats(self):
-        print('get stats')
         return [self.stat1, self.stat2, self.stat3, self.stat4, self.stat5, self.stat6, self.stat7, self.stat8,
                 self.stat9, self.stat9, self.stat10, self.stat11, self.stat12]
 

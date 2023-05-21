@@ -1,7 +1,48 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block content %}
-    <form method="POST" action={% block url %}{% endblock %}>
+  <form method="post" action={% block url %}{% endblock %}>
+  {% csrf_token %}
+  <h2>Create Statistics</h2>
+  <div class="row">
+    {% for i in range %}
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Giocatore {{ i }}</h5>
+            <div class="form-group">
+              <label for="player{{ i }}">Selezione Giocatore</label>
+              <select class="form-control" id="player{{ i }}" name="player{{ i }}">
+                <option value="">Select a player</option>
+                {% for player in players %}
+                  <option value="{{ player.id }}">{{ player }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="points{{ i }}">Punti</label>
+              <input type="number" class="form-control" id="points{{ i }}" name="points{{ i }}">
+            </div>
+            <div class="form-group">
+              <label for="rebounds{{ i }}">Rimbalzi</label>
+              <input type="number" class="form-control" id="rebounds{{ i }}" name="rebounds{{ i }}">
+            </div>
+            <div class="form-group">
+              <label for="blocks{{ i }}">Assist</label>
+              <input type="number" class="form-control" id="blocks{{ i }}" name="blocks{{ i }}">
+            </div>
+          </div>
+        </div>
+      </div>
+      {% cycle '' '' '</div><div class="row">' %}
+    {% endfor %}
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}
+
+{% comment %}<form method="POST" action={% block url %}{% endblock %}>
         {% csrf_token %}
     {% for i in range %}
         <li>
@@ -18,28 +59,6 @@
         </li>
     {% endfor %}
 
-        {% comment %}{{ form }}{% endcomment %}
+        {{ form }}
         <button type="submit">Create</button>
-    </form>
-{% endblock %}
-
-{% block scripts %}
-<style>
-
-    label{
-        margin-right: 10px;
-    }
-    input{
-        margin-top: 20px;
-    }
-
-    li{
-        list-style-type: none;
-    }
-    h3{
-        margin: 0;
-        display: inline;
-    }
-
-</style>
-{% endblock %}
+    </form>{% endcomment %}

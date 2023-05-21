@@ -1,75 +1,70 @@
 {% extends 'base.html' %}
 
-
-
-
 {% block content %}
-    <h2>Dettagli partita</h2>
-    <h3>Squadre:</h3>
-    <p>{{ partita.teamA }} vs {{ partita.teamB }}</p>
-    <h3>Punteggio finale:</h3>
-    <p>{{ partita.pointsA }} - {{ partita.pointsB }}</p>
+    <h2 class="display-4">{{ partita.teamA }}: {{ partita.pointsA }}</h2>
+    <h2 class="display-6"> vs </h2>
+    <h2 class="display-4">{{ partita.teamB }}: {{ partita.pointsB }}</h2>
 
-    <h3>Tabellino {{ partita.teamA }}:</h3>
+    <h3 class="mt-4 display-8">{{ partita.teamA.name }}:</h3>
     {% if partita.tabellinoA %}
-        <table class="table table-striped">
+        <a href="{% url 'main:create-nuovo-tabellinoA' partita.id %}" class="btn btn-primary">Inserisci nuovo tabellino</a>
+        <table class="table table-striped mt-3">
             <thead>
                 <tr>
-                    <th>Giocatore</th>
-                    <th>Punti</th>
-                    <th>Rimbalzi</th>
-                    <th>Assist</th>
+                    <th class="h5">Giocatore</th>
+                    <th class="h5">Punti</th>
+                    <th class="h5">Rimbalzi</th>
+                    <th class="h5">Blocks</th>
                 </tr>
             </thead>
             <tbody>
                 {% for stat in statsA %}
                     <tr>
-                    {% if stat.player %}
-                        <td><a href="{% url 'main:player-detail' stat.player.id %}">{{ stat.player }}</a></td>
-                        <td>{{ stat.points }}</td>
-                        <td>{{ stat.rebounds }}</td>
-                        <td>{{ stat.blocks }}</td>
-                    {% endif %}
+                        {% if stat.player %}
+                            <td><a href="{% url 'main:player-detail' stat.player.id %}" class="text-decoration-none">{{ stat.player }}</a></td>
+                            <td>{{ stat.points }}</td>
+                            <td>{{ stat.rebounds }}</td>
+                            <td>{{ stat.blocks }}</td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <p>Nessun tabellino disponibile per {{ partita.teamA }}.</p>
+        <p class="lead">Nessun tabellino disponibile per {{ partita.teamA }}.</p>
         <a href="{% url 'main:create-tabellinoA' partita.id %}" class="btn btn-primary">Inserisci tabellino</a>
     {% endif %}
 
-    <h3>Tabellino {{ partita.teamB }}:</h3>
+    <h3 class="mt-4 display-8">{{ partita.teamB.name }}:</h3>
     {% if partita.tabellinoB %}
-        <table class="table table-striped">
+        <a href="{% url 'main:create-nuovo-tabellinoB' partita.id %}" class="btn btn-primary">Inserisci nuovo tabellino</a>
+        <table class="table table-striped mt-3">
             <thead>
                 <tr>
-                    <th>Giocatore</th>
-                    <th>Punti</th>
-                    <th>Rimbalzi</th>
-                    <th>Assist</th>
+                    <th class="h5">Giocatore</th>
+                    <th class="h5">Punti</th>
+                    <th class="h5">Rimbalzi</th>
+                    <th class="h5">Blocks</th>
                 </tr>
             </thead>
             <tbody>
                 {% for stat in statsB %}
                     <tr>
                         {% if stat.player %}
-                        <td><a href="{% url 'main:player-detail' stat.player.id %}">{{ stat.player }}</a></td>
-                        <td>{{ stat.points }}</td>
-                        <td>{{ stat.rebounds }}</td>
-                        <td>{{ stat.blocks }}</td>
-                    {% endif %}
+                            <td><a href="{% url 'main:player-detail' stat.player.id %}" class="text-decoration-none">{{ stat.player }}</a></td>
+                            <td>{{ stat.points }}</td>
+                            <td>{{ stat.rebounds }}</td>
+                            <td>{{ stat.blocks }}</td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <p>Nessun tabellino disponibile per {{ partita.teamB }}.</p>
+        <p class="lead">Nessun tabellino disponibile per {{ partita.teamB }}.</p>
         <a href="{% url 'main:create-tabellinoB' partita.id %}" class="btn btn-primary">Inserisci tabellino</a>
-    {% endif %}
+{% endif %}
 {% endblock %}
-
-
 
 
 

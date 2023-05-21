@@ -2,14 +2,35 @@ from .models import *
 from django.core.files import File
 from django.contrib.auth.models import Group
 
+
 def create_groups():
     players = Group(name='Players')
-    #players.permissions.add()
+    # players.permissions.add()
     players.save()
 
+#Una sorta di garbage collector di stat e tabellini non agganciati più a niente
 def check_stats():
     for stat in Stat.objects.all():
         if not stat.valid:
+            stat.delete()
+
+    for tabellino in Tabellino.objects.all():
+        delete = True
+        for match in Match.objects.all():
+            if tabellino == match.tabellinoA or tabellino == match.tabellinoB:
+                delete = False
+                break
+        if delete:
+            tabellino.delete()
+
+
+    for stat in Stat.objects.all():
+        delete = True
+        for tabellino in Tabellino.objects.all():
+            if stat in tabellino.get_stats():
+                delete = False
+                break
+        if delete:
             stat.delete()
 
 def erase_db():
@@ -73,7 +94,8 @@ def init_db():
     # Serie B2
 
     # Serie C
-    Novellara = Team(name='Pallacanestro Novellara', main_sponsor='Max Devil', city='Novellara', championships=C, img=File(open('static/img/team_000296_2023_CS_PallacanestroNovellara.jpg', 'rb')))
+    Novellara = Team(name='Pallacanestro Novellara', main_sponsor='Max Devil', city='Novellara', championships=C,
+                     img=File(open('static/img/team_000296_2023_CS_PallacanestroNovellara.jpg', 'rb')))
     Novellara.save()
     g4 = Player(name='Nicolo', last_name='Ferrari', birth_date='1999-9-12', number=4, team=Novellara)
     g4.save()
@@ -82,7 +104,8 @@ def init_db():
     g6 = Player(name='Marco', last_name='Morini', birth_date='2002-03-04', number=6, team=Novellara)
     g6.save()
 
-    ReBasket = Team(name='ReBasket', main_sponsor='None', city='Reggio Emilia', championships=C, img=File(open('static/img/team_022281_2023_CS_RebasketCastelnovoSotto.jpg', 'rb')))
+    ReBasket = Team(name='ReBasket', main_sponsor='None', city='Reggio Emilia', championships=C,
+                    img=File(open('static/img/team_022281_2023_CS_RebasketCastelnovoSotto.jpg', 'rb')))
     ReBasket.save()
     g16 = Player(name='Riccardo', last_name='Amadio', birth_date='1993-01-02', number=16, team=ReBasket)
     g16.save()
@@ -90,4 +113,3 @@ def init_db():
     g17.save()
     Correggio = Team(name='Pallacanestro Correggio', main_sponsor='SPAL', city='Correggio', championships=C)
     Correggio.save()
-

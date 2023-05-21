@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Dettagli {{ team.name }}{% endblock %}
 
@@ -8,7 +9,11 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="card">
-                    <img src="{{ squadra.img.url }}" alt="{{ squadra.nome }}" class="card-img-top">
+                    {% if squadra.img %}
+                        <img src="{{ squadra.img.url }}" alt="{{ squadra.nome }}" class="card-img-top">
+                    {% else %}
+                        <img src="{% static 'img/product_image_not_available.png' %}" alt="{{ squadra.nome }}" class="card-img-top">
+                    {% endif %}
                     <div class="card-body">
                         <h3 class="card-title">{{ squadra.name }}</h3>
                         <p class="card-text"><strong>Città:</strong> {{ squadra.city }}</p>
