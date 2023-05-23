@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    {% if team.players.all %}
+        <h2 class="text-warning-emphasis">Impossibile eliminare {{ team.name }} perchè ci sono ancora giocatori nella squadra</h2>
+        <p>Eliminare prima i seguenti giocatori:</p>
+        {% for player in team.players.all %}
+            <ul>{{ player }}</ul>
+        {% endfor %}
+        <a href="{% url 'main:dashboard' %}" class="btn btn-primary">Torna alla Dashboard</a>
+    {% else %}
+        <h3>Vuoi eliminare {{ team.name }}??</h3>
+        <form method="post" action="{% url 'main:delete-team' team.pk %}">
+            {% csrf_token %}
+            <button type="submit">Elimina</button>
+        </form>
+    {% endif %}
+{% endblock %}

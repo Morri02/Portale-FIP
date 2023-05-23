@@ -25,7 +25,7 @@ class Team(models.Model):
                                       blank=True)
 
     def __str__(self):
-        return self.name + ' of ' + self.city + ', ' + self.main_sponsor
+        return self.name + ' di ' + self.city + ', ' + self.main_sponsor
 
     def get_punti(self, calendario_id):
         calendario = Calendario.objects.get(pk=calendario_id)
@@ -54,6 +54,20 @@ class Team(models.Model):
 
         return punti, vittorie, sconfitte
 
+    class Meta:
+        ordering = ['name']
+
+
+class Coach(models.Model):
+    name = models.CharField(max_length=15)
+    last_name = models.CharField(max_length=15)
+    birth_date = models.DateTimeField()
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name='coaches')
+    profile_img = models.ImageField(upload_to='staff_images/', blank=True, null=True)
+
+    def __str__(self):
+        return self.name + ' ' + self.last_name
+
 
 class Player(models.Model):
     name = models.CharField(max_length=15)
@@ -65,7 +79,7 @@ class Player(models.Model):
     profile_img = models.ImageField(upload_to='player_images/', blank=True, null=True)
 
     def __str__(self):
-        return self.name + ' ' + self.last_name + ' #' + str(self.number)
+        return self.last_name + ' ' + self.name + ' #' + str(self.number)
 
     def get_total_points(self):
         points = 0
@@ -85,6 +99,8 @@ class Player(models.Model):
             counter += 1
         return counter
 
+    class Meta:
+        ordering = ['last_name', 'name']
 
 class Stat(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='stats')
@@ -159,6 +175,7 @@ class Giornata(models.Model):
 
     class Meta:
         verbose_name_plural = 'Giornate'
+        ordering = ['num']
 
 
 class Match(models.Model):
@@ -166,14 +183,16 @@ class Match(models.Model):
     #    championship = models.ForeignKey(ChampionShip, on_delete=models.CASCADE, blank=False, null=False)
     teamA = models.ForeignKey(Team, related_name='teamA', on_delete=models.CASCADE, blank=False, null=False)
     teamB = models.ForeignKey(Team, related_name='teamB', on_delete=models.CASCADE, blank=False, null=False)
-    tabellinoA = models.OneToOneField(Tabellino, on_delete=models.PROTECT, related_name='partitaA', blank=True,
+    tabellinoA = models.OneToOneField(Tabellino, on_delete=models.SET_NULL, related_name='partitaA', blank=True,
                                       null=True)
-    tabellinoB = models.OneToOneField(Tabellino, on_delete=models.PROTECT, related_name='partitaB', blank=True,
+    tabellinoB = models.OneToOneField(Tabellino, on_delete=models.SET_NULL, related_name='partitaB', blank=True,
                                       null=True)
-    pointsA = models.PositiveSmallIntegerField(blank=True, null=True)
-    pointsB = models.PositiveSmallIntegerField(blank=True, null=True)
+    pointsA = models.PositiveSmallIntegerField(blank=True, null=True, default=0)
+    pointsB = models.PositiveSmallIntegerField(blank=True, null=True, default=0)
     location = models.CharField(max_length=50)
     giornata = models.ForeignKey(Giornata, related_name='partite', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return self.teamA.name + ' - ' + self.teamB.name
+        return '(' + str(self.date.day) + '/' + str(self.date.month) + '/' + str(self.date.year) + ')   ' + str(self.pointsA) + ' :' + self.teamA.name + ' - ' + self.teamB.name + ': ' + str(self.pointsB)
+
+

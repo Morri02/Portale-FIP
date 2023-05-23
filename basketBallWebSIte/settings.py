@@ -128,4 +128,4 @@ DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 LOGIN_URL = "/login/" #redireziona alla pagina di login se proa a fare qualcosa che serve essere autenticati
 LOGIN_REDIRECT_URL = '/?login=ok'
-
+LOGOUT_REDIRECT_URL = '/?logout=ok'

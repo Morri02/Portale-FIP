@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    <a class="display-6" href="{% url 'main:detail-calendario' partita.giornata.calendario.pk %}">{{ partita.giornata.calendario }}</a>
     <h2 class="display-4">{{ partita.teamA }}: {{ partita.pointsA }}</h2>
     <h2 class="display-6"> vs </h2>
     <h2 class="display-4">{{ partita.teamB }}: {{ partita.pointsB }}</h2>

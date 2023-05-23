@@ -22,7 +22,7 @@
                         <p class="card-text text-center"><strong>Ruolo:</strong> {{ giocatore.role }}</p>
                         <p class="card-text text-center"><strong>Data di nascita:</strong> {{ giocatore.birth_date }}</p>
                         <p class="card-text text-center"><strong>Numero di maglia:</strong> {{ giocatore.number }}</p>
-                        <p class="card-text text-center"><strong>Squadra:</strong><a href="{% url 'main:team-detail' giocatore.team.id %}"> {{ giocatore.team }}</a></p>
+                        <p class="card-text text-center"><strong>Squadra:</strong><a href="{% url 'main:team-detail' giocatore.team.pk %}"> {{ giocatore.team }}</a></p>
                     </div>
                 </div>
            <div class="card mt-4">
@@ -57,6 +57,7 @@
                     </div>
                 </div>
         </div>
+    </div>
     </div>
 {% endblock %}
 

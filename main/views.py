@@ -3,19 +3,21 @@ from django.contrib.auth.forms import UserCreationForm
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
 from .models import *
 from .forms import *
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
-
-#TODO: Fare una dashboard amministratore
+from django.contrib.auth.mixins import UserPassesTestMixin
 
 
 def home_page(request):
     if request.GET.get('login') == 'ok':
         return render(request, 'home_page.html', context={'benvenuto': request.user.username})
+    if request.GET.get('logout') == 'ok':
+        print('hdCBHBHSB')
+        return render(request, 'registration/prova.html')
     return render(request, 'home_page.html')
 
 
@@ -23,10 +25,12 @@ def test_base(request):
     return render(request, 'base.html')
 
 
-# JavaScript retrieve functions
+########################################################################################################################
+# Retrieve functions
 
-@user_passes_test(lambda u: u.is_staff)
+# @user_passes_test(lambda u: u.is_staff)
 def get_teams(request):
+    print('get_teams')
     championship = request.GET.get('championship')
     if championship == '':
         teams = Team.objects.all()
@@ -98,21 +102,13 @@ def player_search(request):
     return render(request, 'player_search.html', context)
 
 
+########################################################################################################################
+# Player
+
+
 class ListPlayerView(ListView):
     model = Player
     template_name = 'list_player.html'
-
-
-class ListTeamView(ListView):
-    model = Team
-    template_name = 'list_teams.html'
-    context_object_name = 'teams'
-
-
-class ListChampionshipView(ListView):
-    model = ChampionShip
-    template_name = 'list_championships.html'
-    context_object_name = 'championships'
 
 
 class DetailPlayerView(DetailView):
@@ -131,26 +127,17 @@ class DetailPlayerView(DetailView):
         return ctx
 
 
-class DetailTeamView(DetailView):
-    model = Team
-    template_name = 'detail_team.html'
-    context_object_name = 'squadra'
-
-
-class CreatePlayerView(CreateView):
-    model = Player
-    fields = '__all__'
-    success_url = reverse_lazy('main:homepage')
-    template_name = 'create_player.html'
-
-
-class DeletePlayerView(DeleteView):
+class DeletePlayerView(UserPassesTestMixin, DeleteView):
     model = Player
     template_name = 'delete_player.html'
     success_url = reverse_lazy('main:list-players')
+    context_object_name = 'player'
+
+    def test_func(self):
+        return self.request.user.is_staff
 
 
-class UpdatePlayerView(UpdateView):
+class UpdatePlayerView(UserPassesTestMixin, UpdateView):
     model = Player
     fields = '__all__'
     template_name = 'update_player.html'
@@ -158,30 +145,138 @@ class UpdatePlayerView(UpdateView):
     def get_success_url(self):
         return reverse_lazy('main:player-detail', args=[self.object.pk])
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class CreateMatchView(CreateView):
-    template_name = 'create_match.html'
-    form_class = CreateMatchForm
+
+class CreatePlayerView(UserPassesTestMixin, CreateView):
+    model = Player
+    fields = '__all__'
     success_url = reverse_lazy('main:homepage')
-    #TODO: Da rendere disponibile all'admin
+    template_name = 'create_player.html'
+
+    def test_func(self):
+        return self.request.user.is_staff
 
 
-def aggiorna_classifica(calendario_id):
-    classifica = []
-    calendario = Calendario.objects.get(pk=calendario_id)
-    teams = Team.objects.filter(championships_id=calendario.championship.id)
-    squadra_punti_w_l = []  # w:win l:loss
-    for team in teams:
-        punti, vittorie, sconfitte = team.get_punti(calendario_id)
-        squadra_punti_w_l.append([team.id, punti, vittorie, sconfitte])
+def add_player(request, team_id):
+    if request.method == 'POST':
+        form = AddPlayerForm(request.POST)
+        if form.is_valid():
+            player = Player(team_id=team_id)
+            player.name = form.cleaned_data.get('name')
+            player.last_name = form.cleaned_data.get('last_name')
+            player.number = form.cleaned_data.get('number')
+            player.role = form.cleaned_data.get('role')
+            player.birth_date = form.cleaned_data.get('birth_date')
+            player.profile_img = form.cleaned_data.get('profile_img')
 
-    squadra_punti_w_l.sort(key=lambda x: x[1], reverse=True)
-    print(str(squadra_punti_w_l))
-    for obj in squadra_punti_w_l:
-        classifica.append(obj[0])
-    print('Classifica aggiornata:' + str(classifica))
-    return squadra_punti_w_l
+            player.save()
 
+            return redirect('main:dashboard')
+        else:
+            return render(request, 'add_player.html', context={'form': form})
+    else:
+        form = AddPlayerForm()
+
+        return render(request, 'add_player.html', context={'form': form, 'squadra': Team.objects.get(pk=team_id)})
+
+
+
+########################################################################################################################
+# Teams
+# TODO: Fai tutte le views
+
+class DeleteTeamView(DeleteView):
+    model = Team
+    template_name = 'delete_team.html'
+    success_url = reverse_lazy('main:dashboard')
+
+
+class UpdateTeamView(UpdateView):
+    model = Team
+    fields = '__all__'
+    template_name = 'update_team.html'
+    success_url = reverse_lazy('main:dashboard')
+
+
+class CreateTeamView(CreateView):
+    model = Team
+    fields = '__all__'
+    template_name = 'create_team.html'
+    success_url = reverse_lazy('main:dashboard')
+
+
+def add_team(request, campionato_id):
+    if request.method == 'POST':
+        form = AddTeamForm(request.POST)
+        if form.is_valid():
+            team = Team(championships_id=campionato_id)
+            team.name = form.cleaned_data.get('name')
+            team.city = form.cleaned_data.get('city')
+            team.main_sponsor = form.cleaned_data.get('main_sponsor')
+            team.img = form.cleaned_data.get('img')
+
+            team.save()
+
+            return redirect('main:dashboard')
+        else:
+            return render(request, 'add_team.html', context={'form': form, 'campionato': ChampionShip.objects.get(pk=campionato_id)})
+    else:
+        form = AddTeamForm()
+
+        return render(request, 'add_team.html', context={'form': form, 'campionato': ChampionShip.objects.get(pk=campionato_id)})
+
+
+class ListTeamView(ListView):
+    model = Team
+    template_name = 'list_teams.html'
+    context_object_name = 'teams'
+
+
+class DetailTeamView(DetailView):
+    model = Team
+    template_name = 'detail_team.html'
+    context_object_name = 'squadra'
+
+
+########################################################################################################################
+# Campionati
+# Fai tutte le views
+class ListChampionshipView(ListView):
+    model = ChampionShip
+    template_name = 'list_championships.html'
+    context_object_name = 'championships'
+
+
+class DeleteGiornataView(DeleteView):
+    model = Giornata
+    template_name = 'delete_giornata.html'
+    context_object_name = 'giornata'
+    success_url = reverse_lazy('main:dashboard')
+
+
+def create_giornata(request, campionato_id):
+    calendario = ChampionShip.objects.get(pk=campionato_id).calendario
+    num = 0
+    l = []
+    for giornata in calendario.giornate.all():
+        l.append(giornata.num)
+    #     num = max(giornata.num, num)
+    l.sort()
+    for i in range(1, len(l) + 1):
+        if i not in l:
+            print('manca il' + str(i))
+            num = i
+            break
+    giornata = Giornata(num=num, calendario_id=calendario.pk)
+    giornata.save()
+
+    return redirect('main:dashboard')
+
+
+########################################################################################################################
+# Statistiche e Calendario
 
 class DetailCalendarioView(DetailView):
     model = Calendario
@@ -285,14 +380,13 @@ def create_tabellino(request, match_id, lettera):
             blocks = request.POST.get('blocks' + str(i + 1))
             list_inputs.append([player, points, rebounds, blocks])
 
-
             player_id = list_inputs[i][0]
             points = int(points) if points else 0
             rebounds = int(rebounds) if rebounds else 0
             blocks = int(blocks) if blocks else 0
             if player_id != '':
                 list_stats.append(Stat(player_id=player_id, points=points, rebounds=rebounds,
-                                   blocks=blocks))
+                                       blocks=blocks))
             else:
                 list_stats.append(None)
                 continue
@@ -324,7 +418,7 @@ def create_tabellino(request, match_id, lettera):
         return redirect("/main/detail/match/" + str(match_id))
 
     context = {'players': Player.objects.filter(team_id=partita.teamA.id) if lettera == 'A' else Player.objects.filter(
-                   team_id=partita.teamB.id),
+        team_id=partita.teamB.id),
                'match_id': match_id,
                'partita': partita,
                'range': [i for i in range(1, 13)]}
@@ -343,17 +437,17 @@ def get_pk_player(player):
     return player_id
 
 
-
-
+@login_required
 def create_nuovo_tabellinoA(request, match_id):
     return create_nuovo_tabellino(request, match_id, 'A')
 
 
+@login_required
 def create_nuovo_tabellinoB(request, match_id):
     return create_nuovo_tabellino(request, match_id, 'B')
 
 
-
+@login_required
 def create_nuovo_tabellino(request, match_id, lettera):
     partita = Match.objects.get(pk=match_id)
     if lettera == 'A':
@@ -366,6 +460,50 @@ def create_nuovo_tabellino(request, match_id, lettera):
         partita.tabellinoB.delete()
 
     return create_tabellino(request, match_id, lettera)
+
+
+########################################################################################################################
+# Matches
+
+# TODO:finisci view per match (update, delete)
+
+def create_match(request, giornata_id):
+    if request.method == 'POST':
+        form = CreateMatchForm(request.POST)
+        match = Match(giornata_id=giornata_id)
+        if form.is_valid():
+            print('form valido')
+            teamA = form.cleaned_data.get('teamA')
+            teamB = form.cleaned_data.get('teamB')
+            date = form.cleaned_data.get('date')
+            location = form.cleaned_data.get('location')
+            print(teamA)
+            match.teamA = teamA
+            match.teamB = teamB
+            match.date = date
+            match.location = location
+            match.save()
+        else:
+            form.fields['teamA'].queryset = Team.objects.filter(championships__calendario__giornate__exact=giornata_id)
+            form.fields['teamB'].queryset = Team.objects.filter(championships__calendario__giornate__exact=giornata_id)
+            return render(request, 'create_match.html', context={'form': form})
+        return redirect('main:dashboard')
+    else:
+        form = CreateMatchForm()
+        form.fields['teamA'].queryset = Team.objects.filter(championships__calendario__giornate__exact=giornata_id)
+        form.fields['teamB'].queryset = Team.objects.filter(championships__calendario__giornate__exact=giornata_id)
+
+    return render(request, 'create_match.html', context={'form': form})
+
+
+# class CreateMatchView(UserPassesTestMixin, CreateView):
+#     template_name = 'create_match.html'
+#     form_class = CreateMatchForm
+#     success_url = reverse_lazy('main:homepage')
+#
+#     def test_func(self):
+#         return self.request.user.is_staff
+
 
 class DetailMatchView(DetailView):
     model = Match
@@ -387,7 +525,20 @@ class ListMatchView(ListView):
     context_object_name = 'partite'
 
 
+########################################################################################################################
+# Admin
+
+
 class UserCreateView(CreateView):
     form_class = UserCreationForm
     template_name = "registration/signup.html"
     success_url = reverse_lazy("main:homepage")
+
+
+@user_passes_test(lambda u: u.is_staff)
+def dashboard_view(request):
+    context = {'squadre': Team.objects.all().order_by('name'),
+               'giocatori': Player.objects.all().order_by('last_name'),
+               'partite': Match.objects.all().order_by('date'),
+               'campionati': ChampionShip.objects.all().order_by('name')}
+    return render(request, 'dashboard.html', context)

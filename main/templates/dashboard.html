@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+
+{% comment %}TODO:Permettere all'amministratore di creare profili is_staff{% endcomment %}
+
+{% block title %}DashBoard{% endblock %}
+
+{% block content %}
+    <h1 class="text-body-emphasis">Dashboard Amministratore</h1>
+
+    <div class="container">
+        <h3 class="text-body-emphasis">Campionati:</h3>
+        {% for campionato in campionati %}
+            <a href="#{{ campionato.pk }}" style="display: inline;font-size: larger">{{ campionato }}</a>
+        {% endfor %}
+        <br>
+        <a href="#manipolazione-tabelle">Gestisci tabelle</a>
+        {% for campionato in campionati %}
+            <div class="card mb-4" style="margin-top: 20px">
+                <div class="card-header" id="{{ campionato.pk }}">
+                    <h3 class="card-title text-primary">{{ campionato }}</h3>
+                </div>
+                <div class="card-body">
+                    <a style="margin-bottom: 5px" class="btn btn-primary"
+                       href="{% url 'main:create-giornata' campionato.id %}">Aggiungi giornata</a>
+                    {% for giornata in campionato.calendario.giornate.all %}
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h4 class="card-title text-secondary" style="display: inline; margin-right: 5px">
+                                    Giornata {{ giornata.num }}</h4>
+                                <a class="btn btn-outline-danger" href="{% url 'main:delete-giornata' giornata.pk %}">Elimina
+                                    Giornata</a><br>
+                                <a class="btn btn-outline-success" href="{% url 'main:create-match' giornata.pk %}"
+                                   style="margin-top: 10px">Aggiungi partita</a>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group">
+                                    {% for partita in giornata.partite.all %}
+                                        <li class="list-group-item">
+                                            <a href="{% url 'main:match-detail' partita.id %}"
+                                               style="font-size: medium">{{ partita }}</a>
+                                            <a href="#" class="btn btn-sm btn-warning">Modifica</a>
+                                            <a href="#" class="btn btn-sm btn-danger">Cancella</a>
+                                        </li>
+                                    {% empty %}
+                                        <li class="list-group-item">
+                                            <p class="text-warning">Nessuna partita registrata.</p>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="card-title text-danger" style="display: inline; margin-right: 5px">Nessuna
+                                    giornata registrata.</h6>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <h2 id="manipolazione-tabelle">Manipolazione tabelle:</h2>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Modello</th>
+                <th>Azioni</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for campionato in campionati %}
+                <tr>
+                    <td>
+                        <h3>{{ campionato.name }}</h3>
+                    </td>
+                    <td>
+                        <a href="{% url 'main:add-team' campionato.pk %}" class="btn btn-primary">Aggiungi squadra</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Azioni</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for squadra in campionato.teams.all %}
+                                <tr>
+                                    <td>{{ squadra }}</td>
+                                    <td>
+                                        <a href="{% url 'main:team-detail' squadra.id %}"
+                                           class="btn btn-sm btn-secondary">Dettagli</a>
+                                        <a href="{% url 'main:update-team' squadra.id %}"
+                                           class="btn btn-sm btn-warning">Modifica</a>
+                                        <a href="{% url 'main:delete-team' squadra.id %}" class="btn btn-sm btn-danger">Cancella</a>
+                                        <a href="{% url 'main:add-player' squadra.id %}" class="btn btn-primary">Aggiungi Giocatore</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td>
+                                        <h6 class="card-title text-danger" style="display: inline; margin-right: 5px">Nessuna squadra registrata.</h6>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="table-responsive">
+        <table class="table">
+            <tbody>
+            <tr>
+                <td style="margin-top: 100px">
+                    <h3>Giocatori</h3>
+                </td>
+                <td>
+                    <a href="{% url 'main:create-player' %}" class="btn btn-primary">Crea giocatore</a>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Azioni</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for giocatore in giocatori %}
+                            <tr>
+                                <td>{{ giocatore }}</td>
+                                <td>
+                                    <a href="{% url 'main:player-detail' giocatore.id %}"
+                                       class="btn btn-sm btn-secondary">Dettagli</a>
+                                    <a href="{% url 'main:update-player' giocatore.id %}"
+                                       class="btn btn-sm btn-warning">Modifica</a>
+                                    <a href="{% url 'main:delete-player' giocatore.id %}" class="btn btn-sm btn-danger">Cancella</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <!-- Aggiungi altre righe per gli altri modelli -->
+            </tbody>
+        </table>
+    </div>
+
+
+
+
+
+{% endblock %}

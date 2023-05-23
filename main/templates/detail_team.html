@@ -18,6 +18,13 @@
                         <h3 class="card-title">{{ squadra.name }}</h3>
                         <p class="card-text"><strong>Città:</strong> {{ squadra.city }}</p>
                         <p class="card-text"><strong>Sponsor:</strong> {{ squadra.main_sponsor }}</p>
+                        <p class="card-text"><strong>Staff tecnico:</strong>
+                            {% for coach in squadra.coaches.all %}
+                                {{ coach }};
+                            {% empty %}
+                                Nessun allenatore registrato.
+                            {% endfor %}
+                    </p>
                         <p class="card-text"><strong>Campionato:</strong><a href="{% url 'main:detail-calendario' squadra.championships.calendario.id %}"> {{ squadra.championships }}</a></p>
                     </div>
                 </div>

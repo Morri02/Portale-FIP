@@ -8,7 +8,8 @@ def create_groups():
     # players.permissions.add()
     players.save()
 
-#Una sorta di garbage collector di stat e tabellini non agganciati più a niente
+
+# Una sorta di garbage collector di stat e tabellini non agganciati più a niente
 def check_stats():
     for stat in Stat.objects.all():
         if not stat.valid:
@@ -23,7 +24,6 @@ def check_stats():
         if delete:
             tabellino.delete()
 
-
     for stat in Stat.objects.all():
         delete = True
         for tabellino in Tabellino.objects.all():
@@ -32,6 +32,15 @@ def check_stats():
                 break
         if delete:
             stat.delete()
+
+    for match in Match.objects.all():
+        if match.tabellinoA is None:
+            match.pointsA = 0
+            match.save()
+        if not match.tabellinoB:
+            match.pointsB = 0
+            match.save()
+
 
 def erase_db():
     print('DATABASE ERASE')

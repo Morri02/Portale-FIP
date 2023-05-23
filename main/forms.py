@@ -33,22 +33,28 @@ class PlayerSearchForm(forms.Form):
 class CreateMatchForm(forms.ModelForm):
 
     def clean(self):
-        #
-        # if self.cleaned_data['giornata'].calendario.championship == self.cleaned_data['teamA'].championships:
-        #     self.add_error("teamA", "Non può essere in quel calendario")
-        # if self.cleaned_data['giornata'].calendario.championship == self.cleaned_data['teamB'].championships:
-        #     self.add_error("teamB", "Non può essere in quel calendario")
-        # if self.cleaned_data['teamA'].teamA.championships == self.cleaned_data['teamB'].teamB.championships:
-        #     self.add_error("teamB", "Not in the same championship")
-        #
-        # if self.cleaned_data['teamA'] == self.cleaned_data['teamB']:
-        #     self.add_error("teamB", "Non può giocare con sè stessa")
+        if self.cleaned_data['teamA'] == self.cleaned_data['teamB']:
+            self.add_error("teamB", "Non può giocare con sè stessa")
 
         return self.cleaned_data
 
     class Meta:
         model = Match
-        fields = '__all__'
+        fields = ['date', 'teamA', 'teamB', 'location']
+
+
+class AddPlayerForm(forms.ModelForm):
+
+    class Meta:
+        model = Player
+        fields = ['name', 'last_name', 'number', 'role', 'birth_date', 'profile_img']
+
+
+class AddTeamForm(forms.ModelForm):
+
+    class Meta:
+        model = Team
+        fields = ['name', 'city', 'img', 'main_sponsor']
 
 
 class CreateTabellinoForm(forms.ModelForm):
@@ -61,10 +67,11 @@ class CreateTabellinoForm(forms.ModelForm):
         fields = '__all__'
 
 
-class CreateUserPlayer(UserCreationForm):
-
-    def save(self, commit=True):
-        user = super().save(commit)
-        g = Group.objects.get(name='Players')
-        g.user_set.add(user)
-        return user
+# class CreateUserPlayer(UserCreationForm):
+#
+#     def save(self, commit=True):
+#         user = super().save(commit)
+#         g = Group.objects.get(name='Players')
+#         g.user_set.add(user)
+#         return user
+#
