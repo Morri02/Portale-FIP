@@ -1,5 +1,4 @@
-
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
@@ -81,6 +80,30 @@ class Player(models.Model):
     def __str__(self):
         return self.last_name + ' ' + self.name + ' #' + str(self.number)
 
+    def get_partite_in_casa(self):
+        partite = []
+        partite_giocate = []
+        for match in self.team.teamA.all():
+            partite.append(match)
+            if match.tabellinoA:
+                for stat in match.tabellinoA.get_stats():
+                    if stat:
+                        if self.pk == stat.player_id:
+                            partite_giocate.append(match)
+        return partite, partite_giocate
+
+    def get_partite_in_trasferta(self):
+        partite = []
+        partite_giocate = []
+        for match in self.team.teamB.all():
+            partite.append(match)
+            if match.tabellinoB:
+                for stat in match.tabellinoB.get_stats():
+                    if stat:
+                        if self.pk == stat.player_id:
+                            partite_giocate.append(match)
+        return partite, partite_giocate
+
     def get_total_points(self):
         points = 0
         rebounds = 0
@@ -102,6 +125,7 @@ class Player(models.Model):
     class Meta:
         ordering = ['last_name', 'name']
 
+
 class Stat(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='stats')
     points = models.PositiveSmallIntegerField(blank=False, null=False, default=0)
@@ -111,8 +135,6 @@ class Stat(models.Model):
 
     def __str__(self):
         return str(self.player) + ', ' + str(self.points) + ', ' + str(self.rebounds) + ', ' + str(self.blocks)
-
-
 
 
 class Tabellino(models.Model):
@@ -129,7 +151,7 @@ class Tabellino(models.Model):
     stat11 = models.OneToOneField(Stat, on_delete=models.CASCADE, related_name='stat11', blank=True, null=True)
     stat12 = models.OneToOneField(Stat, on_delete=models.CASCADE, related_name='stat12', blank=True, null=True)
 
-    # [stat1, stat2, stat3, stat4, stat5, stat6, stat7, stat8, stat9, stat9, stat10, stat11, stat12]
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return 'Tabellino #' + str(self.pk)
@@ -193,6 +215,14 @@ class Match(models.Model):
     giornata = models.ForeignKey(Giornata, related_name='partite', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return '(' + str(self.date.day) + '/' + str(self.date.month) + '/' + str(self.date.year) + ')   ' + str(self.pointsA) + ' :' + self.teamA.name + ' - ' + self.teamB.name + ': ' + str(self.pointsB)
+        return '(' + str(self.date.day) + '/' + str(self.date.month) + '/' + str(self.date.year) + ')   ' + str(
+            self.pointsA) + ' :' + self.teamA.name + ' - ' + self.teamB.name + ': ' + str(self.pointsB)
 
 
+class Commento(models.Model):
+    match = models.ForeignKey(Match, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    comment = models.CharField(max_length=500)
+
+    def __str__(self):
+        return self.comment

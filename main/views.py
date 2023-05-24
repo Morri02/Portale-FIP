@@ -111,6 +111,10 @@ class ListPlayerView(ListView):
     template_name = 'list_player.html'
 
 
+
+
+
+
 class DetailPlayerView(DetailView):
     model = Player
     template_name = 'detail_player.html'
@@ -118,12 +122,23 @@ class DetailPlayerView(DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        points, rebounds, blocks = self.get_object().get_total_points()
+        points, rebounds, assists = self.get_object().get_total_points()
         counter = self.get_object().get_total_matches()
+
+        partite_in_casa, partite_in_casa_giocate = self.get_object().get_partite_in_casa()
+        partite_in_trasferta, partite_in_trasferta_giocate = self.get_object().get_partite_in_trasferta()
+
         ctx['media_punti'] = points / counter if counter != 0 else 0
+        ctx['media_rimbalzi'] = rebounds / counter if counter != 0 else 0
+        ctx['media_assist'] = assists / counter if counter != 0 else 0
         ctx['points'] = points
         ctx['rebounds'] = rebounds
-        ctx['blocks'] = blocks
+        ctx['blocks'] = assists
+        ctx['partite_in_casa'] = partite_in_casa
+        ctx['partite_in_casa_giocate'] = partite_in_casa_giocate
+        ctx['partite_in_trasferta'] = partite_in_trasferta
+        ctx['partite_in_trasferta_giocate'] = partite_in_trasferta_giocate
+        ctx['partite'] = partite_in_casa + partite_in_trasferta
         return ctx
 
 
@@ -182,7 +197,6 @@ def add_player(request, team_id):
         return render(request, 'add_player.html', context={'form': form, 'squadra': Team.objects.get(pk=team_id)})
 
 
-
 ########################################################################################################################
 # Teams
 # TODO: Fai tutte le views
@@ -221,11 +235,13 @@ def add_team(request, campionato_id):
 
             return redirect('main:dashboard')
         else:
-            return render(request, 'add_team.html', context={'form': form, 'campionato': ChampionShip.objects.get(pk=campionato_id)})
+            return render(request, 'add_team.html',
+                          context={'form': form, 'campionato': ChampionShip.objects.get(pk=campionato_id)})
     else:
         form = AddTeamForm()
 
-        return render(request, 'add_team.html', context={'form': form, 'campionato': ChampionShip.objects.get(pk=campionato_id)})
+        return render(request, 'add_team.html',
+                      context={'form': form, 'campionato': ChampionShip.objects.get(pk=campionato_id)})
 
 
 class ListTeamView(ListView):
@@ -262,13 +278,14 @@ def create_giornata(request, campionato_id):
     l = []
     for giornata in calendario.giornate.all():
         l.append(giornata.num)
-    #     num = max(giornata.num, num)
     l.sort()
     for i in range(1, len(l) + 1):
         if i not in l:
             print('manca il' + str(i))
             num = i
             break
+    if num == 0:
+        num = len(l) + 1
     giornata = Giornata(num=num, calendario_id=calendario.pk)
     giornata.save()
 
@@ -394,7 +411,7 @@ def create_tabellino(request, match_id, lettera):
             list_stats[i].save()
 
         # Inserimento stats nel tabellino
-        tabellino = Tabellino()
+        tabellino = Tabellino(created_by=request.user)
         tabellino.save()
         inserisci_statistiche(tabellino, list_stats)
         tabellino.save()
@@ -410,11 +427,8 @@ def create_tabellino(request, match_id, lettera):
             elif lettera == 'B':
                 partita.tabellinoB = tabellino
                 partita.pointsB = total_points
-        print(total_points)
         partita.save()
-
-        print(str(list_stats))
-        # return render(request, 'match_detail.html', context={'match_id': match_id, 'partita': partita})
+        print(str(tabellino.created_by) + ' ha creato un tabellino')
         return redirect("/main/detail/match/" + str(match_id))
 
     context = {'players': Player.objects.filter(team_id=partita.teamA.id) if lettera == 'A' else Player.objects.filter(

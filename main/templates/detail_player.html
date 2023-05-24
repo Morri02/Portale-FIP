@@ -13,103 +13,149 @@
                     <div class="card-body">
                         <div class="text-center mb-4">
                             {% if giocatore.profile_img %}
-                            <img src="{{ giocatore.profile_img.url }}" alt="Profilo" class="img-fluid rounded-circle w-50">
+                                <img src="{{ giocatore.profile_img.url }}" alt="Profilo"
+                                     class="img-fluid rounded-circle w-50">
                             {% else %}
-                            <img src="{% static 'img/no-profile-picture-icon-1.jpg' %}" alt="Profilo" class="img-fluid rounded-circle w-50">
+                                <img src="{% static 'img/no-profile-picture-icon-1.jpg' %}" alt="Profilo"
+                                     class="img-fluid rounded-circle w-50">
                             {% endif %}
                         </div>
                         <h2 class="card-title text-center">{{ giocatore.name }} {{ giocatore.last_name }}</h2>
                         <p class="card-text text-center"><strong>Ruolo:</strong> {{ giocatore.role }}</p>
-                        <p class="card-text text-center"><strong>Data di nascita:</strong> {{ giocatore.birth_date }}</p>
+                        <p class="card-text text-center"><strong>Data di nascita:</strong> {{ giocatore.birth_date }}
+                        </p>
                         <p class="card-text text-center"><strong>Numero di maglia:</strong> {{ giocatore.number }}</p>
-                        <p class="card-text text-center"><strong>Squadra:</strong><a href="{% url 'main:team-detail' giocatore.team.pk %}"> {{ giocatore.team }}</a></p>
+                        <p class="card-text text-center"><strong>Squadra:</strong><a
+                                href="{% url 'main:team-detail' giocatore.team.pk %}"> {{ giocatore.team }}</a></p>
                     </div>
                 </div>
-           <div class="card mt-4">
+            </div>
+            <div class="card mt-auto">
+                <div class="card-body">
+                    <h3 class="card-title text-primary">Statistiche</h3>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Partita</th>
+                            <th scope="col">Punti</th>
+                            <th scope="col">Rimbalzi</th>
+                            <th scope="col">Assist</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for partita in partite %}
+                            <tr>
+                                {% if partita in partite_in_casa %}
+                                    <td>
+                                        <a href="{% url 'main:team-detail' partita.teamB.pk %}"> {{ partita.teamB.name }}</a>[{{ partita.pointsA }}-{{ partita.pointsB }}]
+                                    </td>
+                                    {% if partita in partite_in_casa_giocate %}
+                                        {% for stat in partita.tabellinoA.get_stats %}
+                                            {% if giocatore == stat.player %}
+                                                {% if stat.points %}
+                                                    <td>{{ stat.points }}</td>
+                                                {% else %}
+                                                    <td>0</td>
+                                                {% endif %}
+                                                {% if stat.rebounds %}
+                                                    <td>{{ stat.rebounds }}</td>
+                                                {% else %}
+                                                    <td>0</td>
+                                                {% endif %}
+                                                {% if stat.blocks %}
+                                                    <td>{{ stat.blocks }}</td>
+                                                {% else %}
+                                                    <td>0</td>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                    {% endif %}
+                                {% else %}
+                                    <td>
+                                        <a href="{% url 'main:team-detail' partita.teamA.pk %}"> {{ partita.teamA.name }}</a>[{{ partita.pointsA }}-{{ partita.pointsB }}]
+                                    </td>
+                                    {% if partita in partite_in_trasferta_giocate %}
+                                        {% for stat in partita.tabellinoB.get_stats %}
+                                            {% if giocatore == stat.player %}
+                                                {% if stat.points %}
+                                                    <td>{{ stat.points }}</td>
+                                                {% else %}
+                                                    <td>0</td>
+                                                {% endif %}
+                                                {% if stat.rebounds %}
+                                                    <td>{{ stat.rebounds }}</td>
+                                                {% else %}
+                                                    <td>0</td>
+                                                {% endif %}
+                                                {% if stat.blocks %}
+                                                    <td>{{ stat.blocks }}</td>
+                                                {% else %}
+                                                    <td>0</td>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                    {% endif %}
+                                {% endif %}
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="2">Nessuna partita registrata.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if partite %}
+                        <div class="text-center">
+                            <p class="card-text"><strong>Media punti:</strong> {{ media_punti }}</p>
+                            <p class="card-text"><strong>Media rimbalzi:</strong> {{ media_rimbalzi }}</p>
+                            <p class="card-text"><strong>Media assist:</strong> {{ media_assist }}</p>
+                        </div>
+                    {% else %}
+                        <p class="card-text text-center">Nessuna partita registrata per calcolare le medie.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% comment %}<div class="card mt-4">
                     <div class="card-body">
                         <h5 class="card-title">Statistiche</h5>
                         <table class="table">
                             <thead>
-                                <tr>
-                                    <th scope="col">Statistica</th>
-                                    <th scope="col">Valore</th>
-                                </tr>
+                            <tr>
+                                <th scope="col">Statistica</th>
+                                <th scope="col">Valore</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Media punti a partita</td>
-                                    <td>{{ media_punti }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Punti questa stagione</td>
-                                    <td>{{ points }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Rimbalzi questa stagione</td>
-                                    <td>{{ rebounds }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Assist questa stagione</td>
-                                    <td>{{ blocks }}</td>
-                                </tr>
+                            <tr>
+                                <td>Media punti a partita</td>
+                                <td>{{ media_punti }}</td>
+                            </tr>
+                            <tr>
+                                <td>Punti questa stagione</td>
+                                <td>{{ points }}</td>
+                            </tr>
+                            <tr>
+                                <td>Rimbalzi questa stagione</td>
+                                <td>{{ rebounds }}</td>
+                            </tr>
+                            <tr>
+                                <td>Assist questa stagione</td>
+                                <td>{{ blocks }}</td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
-                </div>
-        </div>
-    </div>
-    </div>
-{% endblock %}
-
-
-
-{% comment %}
-
-{% block content %}
-    <div class="player-detail">
-        <h2>{{ player }}</h2>
-        <p>Team: <a href={% url 'main:team-detail' player.team.id %}> {{ player.team }}</a></p>
-        {% if player.profile_img %}
-            <div class="image-container">
-                <img src="{{ player.profile_img.url }}" alt="{{ player.name }} Image" class="player-image">
-            </div>
-        {% else %}
-            <p>No image available.</p>
-        {% endif %}
-        {% block update %}
-            <a href="{% url 'main:update-player' player.pk %}" class="btn btn-primary btn-lg px-3 me-sm-3">Update Player</a>
-        {% endblock %}
-    <h2>Stats:</h2>
-    <li>Points: {{ points }}</li>
-    <li>Rebounds: {{ rebounds }}</li>
-    <li>Blocks: {{ blocks }}</li>
-    </div>
-
-{% endblock %}
-
-{% block styles %}
-    <style>
-        /* Player Detail Styles */
-        .player-detail {
-            text-align: center;
-        }
-
-        .player-detail h1 {
-            margin: 0;
-        }
-
-        .player-detail p {
-            margin: 10px 0;
-        }
-
-        .player-detail .image-container {
-            margin-top: 20px;
-        }
-
-        .player-detail .player-image {
-            max-width: 600px;
-            max-height: 600px;
-        }
-    </style>
-{% endblock %}
-{% endcomment %}
+                </div>{% endcomment %}
