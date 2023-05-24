@@ -63,6 +63,9 @@ urlpatterns = [
     path('get/all/matches', get_all_matches, name='all-matches'),
     path('get/day<int:day_id>/matches', get_matches_by_giornata, name='day-matches'),
 
+    path('add/comment/<int:match_id>', add_comment, name='add-comment'),
+    path('delete/commento/<int:comment_id>/', delete_comment, name='delete-comment'),
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

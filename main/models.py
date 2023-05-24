@@ -220,9 +220,10 @@ class Match(models.Model):
 
 
 class Commento(models.Model):
-    match = models.ForeignKey(Match, on_delete=models.CASCADE)
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='commenti')
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     comment = models.CharField(max_length=500)
+    date = models.DateField(null=True)
 
     def __str__(self):
         return self.comment

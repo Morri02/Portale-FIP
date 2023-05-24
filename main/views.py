@@ -10,6 +10,10 @@ from .forms import *
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.utils import timezone
+from django.contrib import messages
+
+
 
 
 def home_page(request):
@@ -556,3 +560,32 @@ def dashboard_view(request):
                'partite': Match.objects.all().order_by('date'),
                'campionati': ChampionShip.objects.all().order_by('name')}
     return render(request, 'dashboard.html', context)
+
+
+########################################################################################################################
+#Commenti
+
+def delete_comment(request, comment_id):
+    commento = get_object_or_404(Commento, id=comment_id)
+
+    if request.method == 'POST':
+        commento.delete()
+        return redirect('main:match-detail', pk=commento.match_id)
+    return redirect('main:homepage')
+
+@login_required
+def add_comment(request, match_id):
+    if request.method == 'POST':
+        if request.POST.get('content'):
+            comment = Commento(created_by=request.user)
+            comment.match_id = match_id
+            comment.comment = request.POST.get('content')
+            comment.date = timezone.now()
+            comment.save()
+        else:
+            messages.error(request, 'Il commento non può essere vuoto')
+        return redirect('main:match-detail', pk=match_id)
+    else:
+        messages.error(request, 'Richiesta non valida')
+        return redirect('main:match-detail', pk=match_id)
+

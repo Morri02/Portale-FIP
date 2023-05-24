@@ -1,34 +1,37 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <a class="display-6" href="{% url 'main:detail-calendario' partita.giornata.calendario.pk %}">{{ partita.giornata.calendario }}</a>
+    <a class="display-6"
+       href="{% url 'main:detail-calendario' partita.giornata.calendario.pk %}">{{ partita.giornata.calendario }}</a>
     <h2 class="display-4">{{ partita.teamA }}: {{ partita.pointsA }}</h2>
     <h2 class="display-6"> vs </h2>
     <h2 class="display-4">{{ partita.teamB }}: {{ partita.pointsB }}</h2>
 
     <h3 class="mt-4 display-8">{{ partita.teamA.name }}:</h3>
     {% if partita.tabellinoA %}
-        <a href="{% url 'main:create-nuovo-tabellinoA' partita.id %}" class="btn btn-primary">Inserisci nuovo tabellino</a>
+        <a href="{% url 'main:create-nuovo-tabellinoA' partita.id %}" class="btn btn-primary">Inserisci nuovo
+            tabellino</a>
         <table class="table table-striped mt-3">
             <thead>
-                <tr>
-                    <th class="h5">Giocatore</th>
-                    <th class="h5">Punti</th>
-                    <th class="h5">Rimbalzi</th>
-                    <th class="h5">Blocks</th>
-                </tr>
+            <tr>
+                <th class="h5">Giocatore</th>
+                <th class="h5">Punti</th>
+                <th class="h5">Rimbalzi</th>
+                <th class="h5">Blocks</th>
+            </tr>
             </thead>
             <tbody>
-                {% for stat in statsA %}
-                    <tr>
-                        {% if stat.player %}
-                            <td><a href="{% url 'main:player-detail' stat.player.id %}" class="text-decoration-none">{{ stat.player }}</a></td>
-                            <td>{{ stat.points }}</td>
-                            <td>{{ stat.rebounds }}</td>
-                            <td>{{ stat.blocks }}</td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
+            {% for stat in statsA %}
+                <tr>
+                    {% if stat.player %}
+                        <td><a href="{% url 'main:player-detail' stat.player.id %}"
+                               class="text-decoration-none">{{ stat.player }}</a></td>
+                        <td>{{ stat.points }}</td>
+                        <td>{{ stat.rebounds }}</td>
+                        <td>{{ stat.blocks }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
     {% else %}
@@ -38,139 +41,73 @@
 
     <h3 class="mt-4 display-8">{{ partita.teamB.name }}:</h3>
     {% if partita.tabellinoB %}
-        <a href="{% url 'main:create-nuovo-tabellinoB' partita.id %}" class="btn btn-primary">Inserisci nuovo tabellino</a>
+        <a href="{% url 'main:create-nuovo-tabellinoB' partita.id %}" class="btn btn-primary">Inserisci nuovo
+            tabellino</a>
         <table class="table table-striped mt-3">
             <thead>
-                <tr>
-                    <th class="h5">Giocatore</th>
-                    <th class="h5">Punti</th>
-                    <th class="h5">Rimbalzi</th>
-                    <th class="h5">Blocks</th>
-                </tr>
+            <tr>
+                <th class="h5">Giocatore</th>
+                <th class="h5">Punti</th>
+                <th class="h5">Rimbalzi</th>
+                <th class="h5">Blocks</th>
+            </tr>
             </thead>
             <tbody>
-                {% for stat in statsB %}
-                    <tr>
-                        {% if stat.player %}
-                            <td><a href="{% url 'main:player-detail' stat.player.id %}" class="text-decoration-none">{{ stat.player }}</a></td>
-                            <td>{{ stat.points }}</td>
-                            <td>{{ stat.rebounds }}</td>
-                            <td>{{ stat.blocks }}</td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
+            {% for stat in statsB %}
+                <tr>
+                    {% if stat.player %}
+                        <td><a href="{% url 'main:player-detail' stat.player.id %}"
+                               class="text-decoration-none">{{ stat.player }}</a></td>
+                        <td>{{ stat.points }}</td>
+                        <td>{{ stat.rebounds }}</td>
+                        <td>{{ stat.blocks }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
     {% else %}
         <p class="lead">Nessun tabellino disponibile per {{ partita.teamB }}.</p>
         <a href="{% url 'main:create-tabellinoB' partita.id %}" class="btn btn-primary">Inserisci tabellino</a>
-{% endif %}
-{% endblock %}
+    {% endif %}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{% comment %}
-
-{% block content %}
-    <h2><a href={% url 'main:team-detail' partita.teamA.id %}> {{ partita.teamA }}</a> vs <a
-            href={% url 'main:team-detail' partita.teamB.id %}> {{ partita.teamB }}</a></h2>
-    <p class="location">Location: {{ partita.location }}</p>
-    <div>
-        <div class="team-scores">
-            <div class="team-score">
-                <h3 class="team-name">{{ partita.teamA.name }}</h3>
-                {% if partita.tabellinoA %}
-                    <h4>{{ partita.pointsA }}</h4>
-                    <li>
-                    {{ partita.tabellinoA.stat1.player }}, {{ partita.tabellinoA.stat1.points }}
-                    {{ partita.tabellinoA.stat2.player }}, {{ partita.tabellinoA.stat2.points }}
-                    {{ partita.tabellinoA.stat3.player }}, {{ partita.tabellinoA.stat3.points }}
-                    {{ partita.tabellinoA.stat4.player }}, {{ partita.tabellinoA.stat4.points }}
-                    {{ partita.tabellinoA.stat5.player }}, {{ partita.tabellinoA.stat5.points }}
-                    </li>
-
-                    <form method="GET" action={% url 'main:create-tabellinoA' partita.id %}>
-                        {% csrf_token %}
-                        <button type="submit">Update</button>
-                {% else %}
-                    <h2>Vuoi inserire il tabellino di {{ partita.teamA.name }}??</h2>
-                    <form method="GET" action={% url 'main:create-tabellinoA' partita.id %}>
-                        {% csrf_token %}
-                        <button type="submit">Create</button>
-                    </form>
-                {% endif %}
-            </div>
-            <div class="vs">
-                <h3>vs</h3>
-            </div>
-            <div class="team-score">
-                <h3 class="team-name">{{ partita.teamB.name }}</h3>
-                {% if partita.tabellinoB %}
-                    <h4>{{ partita.pointsB }}</h4>
-                    <li>
-                    {{ partita.tabellinoB.stat1.player }}, {{ partita.tabellinoB.stat1.points }}
-                    {{ partita.tabellinoB.stat2.player }}, {{ partita.tabellinoB.stat2.points }}
-                    </li>
-                    <form method="GET" action={% url 'main:create-tabellinoB' partita.id %}>
-                        {% csrf_token %}
-                        <button type="submit">Update</button>
-                {% else %}
-                    <h4>Vuoi inserire il tabellino di {{ partita.teamB.name }}??</h4>
-                    <form method="GET" action={% url 'main:create-tabellinoB' partita.id %}>
-                        {% csrf_token %}
-                        <button type="submit">Create</button>
-                    </form>
-                {% endif %}
-            </div>
+    <h3 style="margin-top: 50px">Hai visto la partita?? Dicci cosa ne pensi!</h3>
+    <form method="POST" action="{% url 'main:add-comment' partita.id %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="comment-content" class="form-label">Inserisci un commento</label>
+            <textarea class="form-control" id="comment-content" name="content" rows="3"></textarea>
         </div>
+        <button type="submit" class="btn btn-primary">Invia</button>
+    </form>
+<div class="mt-4">
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#commentSection" aria-expanded="false" aria-controls="commentSection" style="margin-top: 100px">
+        Mostra Commenti
+    </button>
+    <div class="collapse mt-3" id="commentSection">
+        <h3>Commenti:</h3>
+        {% for comment in partita.commenti.all %}
+            <div class="card mt-5">
+                <div class="card-body">
+                    <p class="card-text fs-5" style="font-size: larger">{{ comment }}</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-end">
+                    <div class="text-muted">Autore: {{ comment.created_by.username }}</div>
+                    <div class="text-muted">Data: {{ comment.date }}</div>
+                    {% if request.user.is_staff %}
+                        <form method="POST" action="{% url 'main:delete-comment' comment.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm position-absolute top-0 end-0">
+                                Elimina
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p>Nessun commento disponibile.</p>
+        {% endfor %}
     </div>
+</div>
+
 {% endblock %}
-
-{% block scripts %}
-    <style>
-        .team-scores {
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
-        }
-
-        .team-score {
-            text-align: center;
-            margin: 0 20px;
-        }
-
-        .team-score h3 {
-            font-size: 24px;
-            margin: 10px;
-        }
-
-        .team-score p {
-            font-size: 16px;
-        }
-
-    </style>
-{% endblock %}{% endcomment %}
