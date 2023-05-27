@@ -4,6 +4,8 @@ from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.urls import reverse_lazy, reverse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
 from .models import *
 from .forms import *
@@ -196,7 +198,6 @@ def add_player(request, team_id):
 
 ########################################################################################################################
 # Teams
-# TODO: Fai tutte le views
 
 class DeleteTeamView(DeleteView):
     model = Team
@@ -255,7 +256,17 @@ class DetailTeamView(DetailView):
 
 ########################################################################################################################
 # Campionati
-# Fai tutte le views
+# TODO: Fai tutte le views
+
+class UpdateChampView(UserPassesTestMixin, UpdateView):
+    model = ChampionShip
+    context_object_name = 'campionato'
+    template_name = 'update_champ.html'
+    success_url = reverse_lazy('main:dashboard')
+
+    def test_func(self):
+        return self.request.user.is_staff
+
 
 def delete_champ_all(request, champ_id):
     champ = ChampionShip.objects.get(pk=champ_id)
@@ -266,18 +277,24 @@ def delete_champ_all(request, champ_id):
     return redirect('main:dashboard')
 
 
-class DeleteChampView(DeleteView):
+class DeleteChampView(UserPassesTestMixin, DeleteView):
     model = ChampionShip
     template_name = 'delete_champ.html'
     context_object_name = 'champ'
     success_url = reverse_lazy('main:dashboard')
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class CreateChampView(CreateView):
+
+class CreateChampView(UserPassesTestMixin, CreateView):
     model = ChampionShip
     template_name = 'create_champ.html'
     fields = '__all__'
     success_url = reverse_lazy('main:dashboard')
+
+    def test_func(self):
+        return self.request.user.is_staff
 
 
 class ListChampionshipView(ListView):
@@ -286,13 +303,17 @@ class ListChampionshipView(ListView):
     context_object_name = 'championships'
 
 
-class DeleteGiornataView(DeleteView):
+class DeleteGiornataView(UserPassesTestMixin, DeleteView):
     model = Giornata
     template_name = 'delete_giornata.html'
     context_object_name = 'giornata'
     success_url = reverse_lazy('main:dashboard')
 
+    def test_func(self):
+        return self.request.user.is_staff
 
+
+@user_passes_test(lambda u: u.is_staff)
 def create_giornata(request, campionato_id):
     calendario = ChampionShip.objects.get(pk=campionato_id).calendario
     num = 0
@@ -566,8 +587,6 @@ def create_nuovo_tabellino(request, match_id, lettera):
 ########################################################################################################################
 # Matches
 
-# TODO:finisci view per match (update, delete)
-
 @user_passes_test(lambda u: u.is_staff)
 def create_match(request, giornata_id):
     if request.method == 'POST':
@@ -627,7 +646,6 @@ class ListMatchView(ListView):
     context_object_name = 'partite'
 
 
-
 class UpdateMatchView(UpdateView):
     model = Match
     template_name = 'update_match.html'
@@ -663,7 +681,7 @@ def dashboard_view(request):
 
 ########################################################################################################################
 # Commenti
-
+# TODO: like
 def delete_comment(request, comment_id):
     commento = get_object_or_404(Commento, id=comment_id)
 
@@ -688,3 +706,43 @@ def add_comment(request, match_id):
     else:
         messages.error(request, 'Richiesta non valida')
         return redirect('main:match-detail', pk=match_id)
+
+
+@require_POST
+@csrf_exempt
+def like_comment(request):
+    comment_id = request.POST.get('comment_id')
+    comment = Commento.objects.get(id=comment_id)
+    if request.user.is_authenticated:
+        # Controllo se l'utente ha già messo like al commento
+        user_liked = Like.objects.filter(comment=comment, created_by=request.user).exists()
+
+        if user_liked:
+            comment.likes.filter(created_by=request.user).delete()
+        else:
+            Like.objects.create(comment=comment, created_by=request.user)
+
+    likes_count = comment.likes.count()
+    response_data = {
+        'likes_count': likes_count,
+        'authenticated': request.user.is_authenticated
+    }
+    return JsonResponse(response_data)
+
+
+@require_POST
+@csrf_exempt
+def dislike_comment(request):
+    comment_id = request.POST.get('comment_id')
+    comment = Commento.objects.get(pk=comment_id)
+    if request.user.is_authenticated:
+        user_disliked = DisLike.objects.filter(comment=comment, created_by=request.user).exists()
+        if user_disliked:
+            comment.dislikes.filter(created_by=request.user).delete()
+        else:
+            DisLike.objects.create(comment=comment, created_by=request.user)
+
+    response = {'dislikes_count': comment.dislikes.count(),
+                'authenticated': request.user.is_authenticated
+                }
+    return JsonResponse(response)

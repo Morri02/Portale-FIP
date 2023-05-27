@@ -17,6 +17,7 @@ class ChampionShip(models.Model):
     class Meta:
         ordering = ['name', 'year']
 
+
 class Team(models.Model):
     name = models.CharField(max_length=30)
     city = models.CharField(max_length=20)
@@ -36,20 +37,19 @@ class Team(models.Model):
 
         for giornata in Giornata.objects.filter(calendario_id=calendario_id):
             for partita in Match.objects.filter(giornata_id=giornata.pk):
-                if partita.pointsA and partita.pointsB:
-                    if self.pk == partita.teamA.id:
-                        if partita.pointsA > partita.pointsB:
-                            punti += 2
-                            vittorie += 1
-                        else:
-                            sconfitte += 1
+                if self.pk == partita.teamA.id:
+                    if partita.pointsA > partita.pointsB:
+                        punti += 2
+                        vittorie += 1
+                    elif partita.pointsA < partita.pointsB:
+                        sconfitte += 1
 
-                    if self.pk == partita.teamB.id:
-                        if partita.pointsA < partita.pointsB:
-                            punti += 2
-                            vittorie += 1
-                        else:
-                            sconfitte += 1
+                if self.pk == partita.teamB.id:
+                    if partita.pointsA < partita.pointsB:
+                        punti += 2
+                        vittorie += 1
+                    elif partita.pointsA > partita.pointsB:
+                        sconfitte += 1
 
         # print(str(self) + ' ha ' + str(punti) + ' punti')
 
@@ -229,3 +229,15 @@ class Commento(models.Model):
 
     def __str__(self):
         return self.comment
+
+
+
+class Like(models.Model):
+    comment = models.ForeignKey(Commento, on_delete=models.CASCADE, related_name="likes")
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+
+class DisLike(models.Model):
+    comment = models.ForeignKey(Commento, on_delete=models.CASCADE, related_name="dislikes")
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+

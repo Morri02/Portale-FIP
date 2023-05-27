@@ -45,8 +45,10 @@
                                             <li class="list-group-item">
                                                 <a href="{% url 'main:match-detail' partita.id %}"
                                                    style="font-size: medium">{{ partita }}</a>
-                                                <a href="{% url 'main:update-match' partita.id %}" class="btn btn-sm btn-warning">Modifica</a>
-                                                <a href="{% url 'main:delete-match' partita.id %}" class="btn btn-sm btn-danger">Cancella</a>
+                                                <a href="{% url 'main:update-match' partita.id %}"
+                                                   class="btn btn-sm btn-warning">Modifica</a>
+                                                <a href="{% url 'main:delete-match' partita.id %}"
+                                                   class="btn btn-sm btn-danger">Cancella</a>
                                             </li>
                                         {% empty %}
                                             <li class="list-group-item">
@@ -72,68 +74,64 @@
     </div>
 
     <h2 id="manipolazione-tabelle">Manipolazione tabelle:</h2>
-    <a href="{% url 'main:create-championship' %}" class="btn btn-outline-primary" style="margin-bottom: 20px">Aggiungi campionato</a><br>
+    <a href="{% url 'main:create-championship' %}" class="btn btn-outline-primary" style="margin-bottom: 20px">Aggiungi
+        campionato</a><br>
     {% for campionato in campionati %}
         <a href="#campionato{{ campionato.pk }}">{{ campionato.name }}</a>
     {% endfor %}
 
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
+    <div class="table-responsive" style="margin-top: 30px">
+        {% for campionato in campionati %}
             <tr>
-                <th>Modello</th>
-                <th>Azioni</th>
+                <td>
+                    <h3 id="campionato{{ campionato.pk }}">{{ campionato.name }}</h3>
+                </td>
+                <td>
+                    <a href="{% url 'main:add-team' campionato.pk %}" class="btn btn-outline-primary">Aggiungi
+                        squadra</a>
+                    <br>
+                    <a href="{% url 'main:update-championship' campionato.pk %}" class="btn btn-sm btn-outline-warning">Modifica
+                        Campionato</a>
+                    <a href="{% url 'main:delete-championship' campionato.pk %}" class="btn btn-sm btn-outline-danger">Elimina
+                        Campionato</a>
+                </td>
             </tr>
-            </thead>
-            <tbody>
-            {% for campionato in campionati %}
-                <tr>
-                    <td>
-                        <h3 id="campionato{{ campionato.pk }}">{{ campionato.name }}</h3>
-                    </td>
-                    <td>
-                        <a href="{% url 'main:add-team' campionato.pk %}" class="btn btn-outline-primary">Aggiungi squadra</a>
-                        <a href="{% url 'main:delete-championship' campionato.pk %}" class="btn btn-sm btn-outline-danger">Elimina Campionato</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <table class="table table-bordered">
-                            <thead>
+            <tr>
+                <td colspan="2">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Azioni</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for squadra in campionato.teams.all %}
                             <tr>
-                                <th>Nome</th>
-                                <th>Azioni</th>
+                                <td>{{ squadra }}</td>
+                                <td>
+                                    <a href="{% url 'main:team-detail' squadra.id %}"
+                                       class="btn btn-sm btn-secondary">Dettagli</a>
+                                    <a href="{% url 'main:update-team' squadra.id %}"
+                                       class="btn btn-sm btn-warning">Modifica</a>
+                                    <a href="{% url 'main:delete-team' squadra.id %}" class="btn btn-sm btn-danger">Cancella</a>
+                                    <a href="{% url 'main:add-player' squadra.id %}" class="btn btn-primary">Aggiungi
+                                        Giocatore</a>
+                                </td>
                             </tr>
-                            </thead>
-                            <tbody>
-                            {% for squadra in campionato.teams.all %}
-                                <tr>
-                                    <td>{{ squadra }}</td>
-                                    <td>
-                                        <a href="{% url 'main:team-detail' squadra.id %}"
-                                           class="btn btn-sm btn-secondary">Dettagli</a>
-                                        <a href="{% url 'main:update-team' squadra.id %}"
-                                           class="btn btn-sm btn-warning">Modifica</a>
-                                        <a href="{% url 'main:delete-team' squadra.id %}" class="btn btn-sm btn-danger">Cancella</a>
-                                        <a href="{% url 'main:add-player' squadra.id %}" class="btn btn-primary">Aggiungi
-                                            Giocatore</a>
-                                    </td>
-                                </tr>
-                            {% empty %}
-                                <tr>
-                                    <td>
-                                        <h6 class="card-title text-danger" style="display: inline; margin-right: 5px">
-                                            Nessuna squadra registrata.</h6>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                        {% empty %}
+                            <tr>
+                                <td>
+                                    <h6 class="card-title text-danger" style="display: inline; margin-right: 5px">
+                                        Nessuna squadra registrata.</h6>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        {% endfor %}
     </div>
     <div class="table-responsive">
         <table class="table">

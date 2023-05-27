@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 
+{% block styles %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+          integrity="sha512-..." crossorigin="anonymous"/>
+{% endblock %}
+
 {% block content %}
     <a class="display-6"
        href="{% url 'main:detail-calendario' partita.giornata.calendario.pk %}">{{ partita.giornata.calendario }}</a>
@@ -12,7 +17,8 @@
         <a href="{% url 'main:create-nuovo-tabellinoA' partita.id %}" class="btn btn-primary">Inserisci nuovo
             tabellino</a>
         {% if user.is_superuser %}
-            <br><a href="{% url 'main:delete-tabellino' partita.tabellinoA.id %}" class="btn btn-outline-danger" style="margin-top: 20px">Cancella
+            <br><a href="{% url 'main:delete-tabellino' partita.tabellinoA.id %}" class="btn btn-outline-danger"
+                   style="margin-top: 20px">Cancella
             tabellino</a>
         {% endif %}
         <table class="table table-striped mt-3">
@@ -48,9 +54,10 @@
         <a href="{% url 'main:create-nuovo-tabellinoB' partita.id %}" class="btn btn-primary">Inserisci nuovo
             tabellino</a>
         {% if user.is_superuser %}
-            <br><a href="{% url 'main:delete-tabellino' partita.tabellinoB.id %}" class="btn btn-outline-danger" style="margin-top: 20px">Cancella
+            <br><a href="{% url 'main:delete-tabellino' partita.tabellinoB.id %}" class="btn btn-outline-danger"
+                   style="margin-top: 20px">Cancella
             tabellino</a>
-            {% endif %}
+        {% endif %}
         <table class="table table-striped mt-3">
             <thead>
             <tr>
@@ -88,34 +95,94 @@
         </div>
         <button type="submit" class="btn btn-primary">Invia</button>
     </form>
-<div class="mt-4">
-    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#commentSection" aria-expanded="false" aria-controls="commentSection" style="margin-top: 100px">
-        Mostra Commenti
-    </button>
-    <div class="collapse mt-3" id="commentSection">
-        <h3>Commenti:</h3>
-        {% for comment in partita.commenti.all %}
-            <div class="card mt-5">
-                <div class="card-body">
-                    <p class="card-text fs-5" style="font-size: larger">{{ comment }}</p>
+    <div class="mt-4">
+        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#commentSection"
+                aria-expanded="false" aria-controls="commentSection" style="margin-top: 100px">
+            Mostra Commenti
+        </button>
+        <div class="collapse mt-3" id="commentSection">
+            <h3>Commenti:</h3>
+            {% for comment in partita.commenti.all %}
+                <div class="card mt-5">
+                    <div class="card-body">
+                        <p class="card-text fs-5" style="font-size: larger">{{ comment }}</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-end">
+                        <div class="text-muted">Autore: {{ comment.created_by.username }}</div>
+                        <div class="text-muted">Data: {{ comment.date }}</div>
+                        <div>
+                            <i class="fas fa-thumbs-up like" data-comment-id="{{ comment.id }}"></i>
+                            <span>{{ comment.likes.count }}</span>
+                        </div>
+                        <div>
+                            <i class="fas fa-thumbs-down dislike" data-comment-id="{{ comment.id }}"></i>
+                            <span>{{ comment.dislikes.count }}</span>
+                        </div>
+                        {% if request.user.is_staff %}
+                            <form method="POST" action="{% url 'main:delete-comment' comment.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm position-absolute top-0 end-0">
+                                    Elimina
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="card-footer d-flex justify-content-between align-items-end">
-                    <div class="text-muted">Autore: {{ comment.created_by.username }}</div>
-                    <div class="text-muted">Data: {{ comment.date }}</div>
-                    {% if request.user.is_staff %}
-                        <form method="POST" action="{% url 'main:delete-comment' comment.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm position-absolute top-0 end-0">
-                                Elimina
-                            </button>
-                        </form>
-                    {% endif %}
-                </div>
-            </div>
-        {% empty %}
-            <p>Nessun commento disponibile.</p>
-        {% endfor %}
+            {% empty %}
+                <p>Nessun commento disponibile.</p>
+            {% endfor %}
+        </div>
     </div>
-</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+        $('.like').click(function () {
+            var commentId = $(this).data('comment-id');
+            $.ajax({
+                url: '{% url 'main:like-comment' %}',
+                type: 'POST',
+                data: {
+                    comment_id: commentId,
+                    action: 'like'
+                },
+                success: function (response) {
+                    if (response.authenticated === false) {
+                        // Utente non autenticato, reindirizza alla pagina di login
+                        window.location.href = "{% url 'main:login' %}?next=" + window.location.href;
+                    } else {
+                        // Aggiorna il numero di likes visualizzato
+                        var likesCount = response.likes_count;
+                        $('.like[data-comment-id="' + commentId + '"] + span').text(likesCount);
+                    }
+                }
+            });
+        });
+
+        $('.dislike').click(function () {
+            var commentId = $(this).data('comment-id');
+            $.ajax({
+                url: '{% url 'main:dislike-comment' %}',
+                type: 'POST',
+                data: {
+                    comment_id: commentId,
+                    action: 'dislike'
+                },
+                success: function (response) {
+                    if (response.authenticated === false) {
+                        // Utente non autenticato, reindirizza alla pagina di login
+                        window.location.href = "{% url 'main:login' %}?next=" + window.location.href;
+                    } else {
+                        // Aggiorna il numero di dislikes visualizzato
+                        var dislikesCount = response.dislikes_count;
+                        $('.dislike[data-comment-id="' + commentId + '"] + span').text(dislikesCount);
+                    }
+                }
+            });
+        });
+    });
+</script>
 
 {% endblock %}

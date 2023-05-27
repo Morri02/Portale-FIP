@@ -14,13 +14,16 @@ urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
     path('', home_page, name='homepage'),
     path('about/', about, name='about'),
+
     path('list/players/', ListPlayerView.as_view(), name='list-players'),
     path('list/teams/', ListTeamView.as_view(), name='list-teams'),
     path('list/championships/', ListChampionshipView.as_view(), name='list-championships'),
     path('list/matches', ListMatchView.as_view(), name='list-matches'),
+
     path('players/<int:pk>/', DetailPlayerView.as_view(), name='player-detail'),
     path('teams/<int:pk>/', DetailTeamView.as_view(), name='team-detail'),
     path('testbase/', test_base, name='test-base'),
+
     path('create/player/', CreatePlayerView.as_view(), name='create-player'),
     path('add/player/<int:team_id>', add_player, name='add-player'),
     path('update/player/<int:pk>', UpdatePlayerView.as_view(), name='update-player'),
@@ -30,15 +33,16 @@ urlpatterns = [
 
     path('player/search/', player_search, name='player_search'),
 
-    #path('create/match/', CreateMatchView.as_view(), name='create-match'),
     path('create/match/<int:giornata_id>/', create_match, name='create-match'),
     path('update/match/<int:pk>/', UpdateMatchView.as_view(), name='update-match'),
     path('delete/match/<int:pk>/', DeleteMatchView.as_view(), name='delete-match'),
+    path('detail/match/<int:pk>', DetailMatchView.as_view(), name='match-detail'),
 
     path('create/giornata/<int:campionato_id>/', create_giornata, name='create-giornata'),
     path('delete/giornata/<int:pk>/', DeleteGiornataView.as_view(), name='delete-giornata'),
 
     path('create/champ/', CreateChampView.as_view(), name='create-championship'),
+    path('update/champ/<int:pk>', UpdateChampView.as_view(), name='update-championship'),
     path('delete/champ/<int:pk>', DeleteChampView.as_view(), name='delete-championship'),
     path('delete/all/champ/<int:champ_id>', delete_champ_all, name='delete-all-championship'),
 
@@ -57,7 +61,6 @@ urlpatterns = [
     path('delete/tabellino/<int:pk>', DeleteTabellinoView.as_view(), name='delete-tabellino'),
 
 
-    path('detail/match/<int:pk>', DetailMatchView.as_view(), name='match-detail'),
 
     path('detail/campionato/<int:pk>', DetailCalendarioView.as_view(), name='detail-calendario'),
 
@@ -73,6 +76,8 @@ urlpatterns = [
 
     path('add/comment/<int:match_id>', add_comment, name='add-comment'),
     path('delete/commento/<int:comment_id>/', delete_comment, name='delete-comment'),
+    path('like-comment/', like_comment, name='like-comment'),
+    path('dislike-comment/', dislike_comment, name='dislike-comment'),
 
 ]
 
