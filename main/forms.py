@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import Group
-
+from django.forms import widgets
 from .models import *
 
 
@@ -31,7 +31,7 @@ class PlayerSearchForm(forms.Form):
 
 
 class CreateMatchForm(forms.ModelForm):
-
+    date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
     def clean(self):
         if self.cleaned_data['teamA'] == self.cleaned_data['teamB']:
             self.add_error("teamB", "Non può giocare con sè stessa")
@@ -44,6 +44,7 @@ class CreateMatchForm(forms.ModelForm):
 
 
 class AddPlayerForm(forms.ModelForm):
+    birth_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
 
     class Meta:
         model = Player
@@ -66,12 +67,3 @@ class CreateTabellinoForm(forms.ModelForm):
         model = Tabellino
         fields = '__all__'
 
-
-# class CreateUserPlayer(UserCreationForm):
-#
-#     def save(self, commit=True):
-#         user = super().save(commit)
-#         g = Group.objects.get(name='Players')
-#         g.user_set.add(user)
-#         return user
-#

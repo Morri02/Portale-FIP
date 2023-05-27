@@ -3,7 +3,9 @@
 
 {% block title %}{{ giocatore }}{% endblock %}
 
-
+{% block styles %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
 
 {% block content %}
     <div class="container">
@@ -30,6 +32,10 @@
                     </div>
                 </div>
             </div>
+
+            <canvas id="statisticheGrafico"></canvas>
+
+
             <div class="card mt-auto">
                 <div class="card-body">
                     <h3 class="card-title text-primary">Statistiche</h3>
@@ -127,35 +133,87 @@
     </div>
 {% endblock %}
 
+{% block scripts %}
+    <script>
+        // Raccolta dati delle statistiche dalla variabile 'partite'
+        var puntiData = [];
+        var rimbalziData = [];
+        var assistData = [];
+        var partiteLabels = [];
 
-{% comment %}<div class="card mt-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Statistiche</h5>
-                        <table class="table">
-                            <thead>
-                            <tr>
-                                <th scope="col">Statistica</th>
-                                <th scope="col">Valore</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>Media punti a partita</td>
-                                <td>{{ media_punti }}</td>
-                            </tr>
-                            <tr>
-                                <td>Punti questa stagione</td>
-                                <td>{{ points }}</td>
-                            </tr>
-                            <tr>
-                                <td>Rimbalzi questa stagione</td>
-                                <td>{{ rebounds }}</td>
-                            </tr>
-                            <tr>
-                                <td>Assist questa stagione</td>
-                                <td>{{ blocks }}</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>{% endcomment %}
+        {% for partita in partite %}
+            {% if partita in partite_in_casa %}
+                {% if partita in partite_in_casa_giocate %}
+                    {% for stat in partita.tabellinoA.get_stats %}
+                        {% if giocatore == stat.player %}
+                            puntiData.push({{ stat.points }});
+                            rimbalziData.push({{ stat.rebounds }});
+                            assistData.push({{ stat.blocks }});
+                            partiteLabels.push("{{ partita.teamB.name }}");
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    puntiData.push(0);
+                    rimbalziData.push(0);
+                    assistData.push(0);
+                {% endif %}
+            {% else %}
+                {% if partita in partite_in_trasferta_giocate %}
+                    {% for stat in partita.tabellinoB.get_stats %}
+                        {% if giocatore == stat.player %}
+                            puntiData.push({{ stat.points }});
+                            rimbalziData.push({{ stat.rebounds }});
+                            assistData.push({{ stat.blocks }});
+                            partiteLabels.push("{{ partita.teamA.name }}");
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    puntiData.push(0);
+                    rimbalziData.push(0);
+                    assistData.push(0);
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        // Configurazione grafico
+        var ctx = document.getElementById('statisticheGrafico').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: partiteLabels,
+                datasets: [{
+                    label: 'Punti',
+                    data: puntiData,
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Rimbalzi',
+                    data: rimbalziData,
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Assist',
+                    data: assistData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}

@@ -14,6 +14,8 @@ from django.utils import timezone
 from django.contrib import messages
 
 
+def about(request):
+    return render(request, 'about.html')
 
 
 def home_page(request):
@@ -34,7 +36,6 @@ def test_base(request):
 
 # @user_passes_test(lambda u: u.is_staff)
 def get_teams(request):
-    print('get_teams')
     championship = request.GET.get('championship')
     if championship == '':
         teams = Team.objects.all()
@@ -43,12 +44,8 @@ def get_teams(request):
     else:
         teams = Team.objects.none()
 
-    for team in teams:
-        print(str(team))
+    team_data = [{'id': '', 'name': 'All Teams'}] + [{'id': team.id, 'name': team.name} for team in teams]
 
-    team_data = [{'id': team.id, 'name': team.name} for team in teams] + [{'id': '', 'name': 'All Teams'}]
-
-    # Return the team data as JSON response
     return JsonResponse({'teams': team_data})
 
 
@@ -113,10 +110,6 @@ def player_search(request):
 class ListPlayerView(ListView):
     model = Player
     template_name = 'list_player.html'
-
-
-
-
 
 
 class DetailPlayerView(DetailView):
@@ -192,7 +185,7 @@ def add_player(request, team_id):
 
             player.save()
 
-            return redirect('main:dashboard')
+            return redirect('main:add-player', team_id=team_id)
         else:
             return render(request, 'add_player.html', context={'form': form})
     else:
@@ -263,6 +256,30 @@ class DetailTeamView(DetailView):
 ########################################################################################################################
 # Campionati
 # Fai tutte le views
+
+def delete_champ_all(request, champ_id):
+    champ = ChampionShip.objects.get(pk=champ_id)
+    for team in champ.teams.all():
+        team.delete()
+
+    champ.delete()
+    return redirect('main:dashboard')
+
+
+class DeleteChampView(DeleteView):
+    model = ChampionShip
+    template_name = 'delete_champ.html'
+    context_object_name = 'champ'
+    success_url = reverse_lazy('main:dashboard')
+
+
+class CreateChampView(CreateView):
+    model = ChampionShip
+    template_name = 'create_champ.html'
+    fields = '__all__'
+    success_url = reverse_lazy('main:dashboard')
+
+
 class ListChampionshipView(ListView):
     model = ChampionShip
     template_name = 'list_championships.html'
@@ -298,6 +315,62 @@ def create_giornata(request, campionato_id):
 
 ########################################################################################################################
 # Statistiche e Calendario
+class DeleteTabellinoView(UserPassesTestMixin, DeleteView):
+    model = Tabellino
+    template_name = 'delete_tabellino.html'
+    context_object_name = 'tabellino'
+
+    def get_success_url(self):
+        t = self.get_object()
+        try:
+            if t.partitaA:
+                partita = t.partitaA
+        except Exception:
+            pass
+        try:
+            if t.partitaB:
+                partita = t.partitaB
+        except Exception:
+            pass
+        return reverse('main:match-detail', args=[partita.pk])
+
+    def delete(self, request, *args, **kwargs):
+        t = self.get_object()
+        try:
+            if t.partitaA:
+                squadra = t.partitaA.teamA
+                squadra.pointsA = 0
+                squadra.save()
+        except Exception:
+            pass
+        try:
+            if t.partitaB:
+                squadra = t.partitaB.teamB
+                squadra.pointsB = 0
+                squadra.save()
+        except Exception:
+            pass
+
+        return super().delete(request, *args, **kwargs)
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        t = self.get_object()
+        try:
+            if t.partitaA:
+                ctx['partita'] = t.partitaA
+        except Exception:
+            pass
+        try:
+            if t.partitaB:
+                ctx['partita'] = t.partitaB
+        except Exception:
+            pass
+        return ctx
+
 
 class DetailCalendarioView(DetailView):
     model = Calendario
@@ -389,11 +462,11 @@ def inserisci_statistiche(tabellino, list_stats):
 def create_tabellino(request, match_id, lettera):
     partita = Match.objects.get(pk=match_id)
     template_name = 'create_tabellino' + lettera + '.html'
+    errors = []
 
     if request.method == 'POST':
         list_inputs = []
         list_stats = []
-        last_index = 0
         for i in range(0, 12):
             player = request.POST.get('player' + str(i + 1))
             points = request.POST.get('points' + str(i + 1))
@@ -405,6 +478,15 @@ def create_tabellino(request, match_id, lettera):
             points = int(points) if points else 0
             rebounds = int(rebounds) if rebounds else 0
             blocks = int(blocks) if blocks else 0
+
+            if player == '' and (points != 0 or rebounds != 0 or blocks != 0):
+                errors.append('Errore: Selezionare il giocatore ' + str(i))
+                continue
+
+            if points < 0 or rebounds < 0 or blocks < 0:
+                errors.append(f'Errore: Il giocatore {i} aveva una statistica negativa')
+                continue
+
             if player_id != '':
                 list_stats.append(Stat(player_id=player_id, points=points, rebounds=rebounds,
                                        blocks=blocks))
@@ -414,32 +496,33 @@ def create_tabellino(request, match_id, lettera):
 
             list_stats[i].save()
 
-        # Inserimento stats nel tabellino
-        tabellino = Tabellino(created_by=request.user)
-        tabellino.save()
-        inserisci_statistiche(tabellino, list_stats)
-        tabellino.save()
-
-        #       Salvataggio nel team DB
-        total_points = 0
-        for stat in list_stats:
-            if stat:
-                total_points += stat.points
-            if lettera == 'A':
-                partita.tabellinoA = tabellino
-                partita.pointsA = total_points
-            elif lettera == 'B':
-                partita.tabellinoB = tabellino
-                partita.pointsB = total_points
-        partita.save()
-        print(str(tabellino.created_by) + ' ha creato un tabellino')
-        return redirect("/main/detail/match/" + str(match_id))
+        if len(errors) == 0:
+            # Inserimento stats nel tabellino
+            tabellino = Tabellino(created_by=request.user)
+            tabellino.save()
+            inserisci_statistiche(tabellino, list_stats)
+            tabellino.save()
+            #       Salvataggio nel team DB
+            total_points = 0
+            for stat in list_stats:
+                if stat:
+                    total_points += stat.points
+                if lettera == 'A':
+                    partita.tabellinoA = tabellino
+                    partita.pointsA = total_points
+                elif lettera == 'B':
+                    partita.tabellinoB = tabellino
+                    partita.pointsB = total_points
+            partita.save()
+            print(str(tabellino.created_by) + ' ha creato un tabellino')
+            return redirect('main:match-detail', pk=match_id)
 
     context = {'players': Player.objects.filter(team_id=partita.teamA.id) if lettera == 'A' else Player.objects.filter(
         team_id=partita.teamB.id),
                'match_id': match_id,
                'partita': partita,
-               'range': [i for i in range(1, 13)]}
+               'range': [i for i in range(1, 13)],
+               'errors': errors}
 
     return render(request, template_name=template_name, context=context)
 
@@ -485,6 +568,7 @@ def create_nuovo_tabellino(request, match_id, lettera):
 
 # TODO:finisci view per match (update, delete)
 
+@user_passes_test(lambda u: u.is_staff)
 def create_match(request, giornata_id):
     if request.method == 'POST':
         form = CreateMatchForm(request.POST)
@@ -543,9 +627,24 @@ class ListMatchView(ListView):
     context_object_name = 'partite'
 
 
+
+class UpdateMatchView(UpdateView):
+    model = Match
+    template_name = 'update_match.html'
+    context_object_name = 'match'
+    success_url = reverse_lazy('main:dashboard')
+    fields = ['date', 'location', 'giornata']
+
+
+class DeleteMatchView(DeleteView):
+    model = Match
+    template_name = 'delete_match.html'
+    context_object_name = 'match'
+    success_url = reverse_lazy('main:dashboard')
+
+
 ########################################################################################################################
 # Admin
-
 
 class UserCreateView(CreateView):
     form_class = UserCreationForm
@@ -563,7 +662,7 @@ def dashboard_view(request):
 
 
 ########################################################################################################################
-#Commenti
+# Commenti
 
 def delete_comment(request, comment_id):
     commento = get_object_or_404(Commento, id=comment_id)
@@ -572,6 +671,7 @@ def delete_comment(request, comment_id):
         commento.delete()
         return redirect('main:match-detail', pk=commento.match_id)
     return redirect('main:homepage')
+
 
 @login_required
 def add_comment(request, match_id):
@@ -588,4 +688,3 @@ def add_comment(request, match_id):
     else:
         messages.error(request, 'Richiesta non valida')
         return redirect('main:match-detail', pk=match_id)
-

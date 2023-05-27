@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Cancella Tabellino
+{% endblock %}
+
+{% block content %}
+    <h3>Vuoi eliminare il tabellino della partita:{{ partita.teamA }} - {{ partita.teamB }}??</h3>
+    <form method="post" action="{% url 'main:delete-tabellino' tabellino.pk %}">
+        {% csrf_token %}
+        <button type="submit">Cancella</button>
+    </form>
+{% endblock %}

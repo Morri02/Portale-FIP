@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Modifica Partita{% endblock %}
+
+{% block content %}
+    <a href="{% url 'main:dashboard' %}" class="btn btn-primary" style="margin-bottom: 40px">Torna alla Dashboard</a>
+
+    <h2>Aggiorna partita: {{ match.teamA }} - {{ match.teamB }}</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_table }}
+        <button type="submit">Aggiorna</button>
+    </form>
+
+{% endblock %}

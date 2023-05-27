@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 
-{% comment %}TODO:Permettere all'amministratore di creare profili is_staff{% endcomment %}
 
 {% block title %}DashBoard{% endblock %}
 
@@ -13,7 +12,7 @@
     <h1 class="text-body-emphasis">Dashboard Amministratore</h1>
 
     <div class="container">
-        <h3 class="text-body-emphasis">Campionati:</h3>
+        <h3 class="text-body-emphasis">Gestione Partite:</h3>
         {% for campionato in campionati %}
             <div class="card mb-4" style="margin-top: 20px">
                 <div class="card-header" id="{{ campionato.pk }}">
@@ -46,8 +45,8 @@
                                             <li class="list-group-item">
                                                 <a href="{% url 'main:match-detail' partita.id %}"
                                                    style="font-size: medium">{{ partita }}</a>
-                                                <a href="#" class="btn btn-sm btn-warning">Modifica</a>
-                                                <a href="#" class="btn btn-sm btn-danger">Cancella</a>
+                                                <a href="{% url 'main:update-match' partita.id %}" class="btn btn-sm btn-warning">Modifica</a>
+                                                <a href="{% url 'main:delete-match' partita.id %}" class="btn btn-sm btn-danger">Cancella</a>
                                             </li>
                                         {% empty %}
                                             <li class="list-group-item">
@@ -73,6 +72,10 @@
     </div>
 
     <h2 id="manipolazione-tabelle">Manipolazione tabelle:</h2>
+    <a href="{% url 'main:create-championship' %}" class="btn btn-outline-primary" style="margin-bottom: 20px">Aggiungi campionato</a><br>
+    {% for campionato in campionati %}
+        <a href="#campionato{{ campionato.pk }}">{{ campionato.name }}</a>
+    {% endfor %}
 
     <div class="table-responsive">
         <table class="table">
@@ -86,10 +89,11 @@
             {% for campionato in campionati %}
                 <tr>
                     <td>
-                        <h3>{{ campionato.name }}</h3>
+                        <h3 id="campionato{{ campionato.pk }}">{{ campionato.name }}</h3>
                     </td>
                     <td>
                         <a href="{% url 'main:add-team' campionato.pk %}" class="btn btn-outline-primary">Aggiungi squadra</a>
+                        <a href="{% url 'main:delete-championship' campionato.pk %}" class="btn btn-sm btn-outline-danger">Elimina Campionato</a>
                     </td>
                 </tr>
                 <tr>

@@ -5,6 +5,6 @@
     <h3>Vuoi eliminare {{ player.name }} {{ player.last_name }}??</h3>
     <form method="post" action="{% url 'main:delete-player' player.pk %}">
         {% csrf_token %}
-        <button type="submit">Delete Player</button>
+        <button type="submit">Cancella Giocatore</button>
     </form>
 {% endblock %}

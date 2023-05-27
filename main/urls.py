@@ -13,6 +13,7 @@ app_name = 'main'
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
     path('', home_page, name='homepage'),
+    path('about/', about, name='about'),
     path('list/players/', ListPlayerView.as_view(), name='list-players'),
     path('list/teams/', ListTeamView.as_view(), name='list-teams'),
     path('list/championships/', ListChampionshipView.as_view(), name='list-championships'),
@@ -31,9 +32,15 @@ urlpatterns = [
 
     #path('create/match/', CreateMatchView.as_view(), name='create-match'),
     path('create/match/<int:giornata_id>/', create_match, name='create-match'),
+    path('update/match/<int:pk>/', UpdateMatchView.as_view(), name='update-match'),
+    path('delete/match/<int:pk>/', DeleteMatchView.as_view(), name='delete-match'),
 
     path('create/giornata/<int:campionato_id>/', create_giornata, name='create-giornata'),
     path('delete/giornata/<int:pk>/', DeleteGiornataView.as_view(), name='delete-giornata'),
+
+    path('create/champ/', CreateChampView.as_view(), name='create-championship'),
+    path('delete/champ/<int:pk>', DeleteChampView.as_view(), name='delete-championship'),
+    path('delete/all/champ/<int:champ_id>', delete_champ_all, name='delete-all-championship'),
 
     path('create/team/', CreateTeamView.as_view(), name='create-team'),
     path('add/team/<int:campionato_id>', add_team, name='add-team'),
@@ -47,6 +54,7 @@ urlpatterns = [
     path('create/nuovo/tabellinoA/<int:match_id>/', create_tabellinoA, name='create-nuovo-tabellinoA'),
     path('create/tabellinoB/<int:match_id>/', create_tabellinoB, name='create-tabellinoB'),
     path('create/nuovo/tabellinoB/<int:match_id>/', create_tabellinoB, name='create-nuovo-tabellinoB'),
+    path('delete/tabellino/<int:pk>', DeleteTabellinoView.as_view(), name='delete-tabellino'),
 
 
     path('detail/match/<int:pk>', DetailMatchView.as_view(), name='match-detail'),

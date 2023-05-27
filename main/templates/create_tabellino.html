@@ -1,64 +1,81 @@
 {% extends 'base.html' %}
 {% load custom_filters %}
 
+
+
 {% block content %}
-  <form method="post" action={% block url %}{% endblock %}>
-  {% csrf_token %}
-  <h2>Create Statistics</h2>
-  <div class="row">
-    {% for i in range %}
-      <div class="col-md-6">
-        <div class="card mb-3">
-          <div class="card-body">
-            <h5 class="card-title">Giocatore {{ i }}</h5>
-            <div class="form-group">
-              <label for="player{{ i }}">Selezione Giocatore</label>
-              <select class="form-control" id="player{{ i }}" name="player{{ i }}">
-                <option value="">Select a player</option>
-                {% for player in players %}
-                  <option value="{{ player.id }}">{{ player }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="points{{ i }}">Punti</label>
-              <input type="number" class="form-control" id="points{{ i }}" name="points{{ i }}">
-            </div>
-            <div class="form-group">
-              <label for="rebounds{{ i }}">Rimbalzi</label>
-              <input type="number" class="form-control" id="rebounds{{ i }}" name="rebounds{{ i }}">
-            </div>
-            <div class="form-group">
-              <label for="blocks{{ i }}">Assist</label>
-              <input type="number" class="form-control" id="blocks{{ i }}" name="blocks{{ i }}">
-            </div>
-          </div>
-        </div>
-      </div>
-      {% cycle '' '' '</div><div class="row">' %}
+    <form method="post" action={% block url %}{% endblock %}>
+        {% csrf_token %}
+        <h2>Create Statistics</h2>
+        {%  for error in errors %}
+    {{ error }}
     {% endfor %}
-  </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+        <div class="row">
+            {% for i in range %}
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Giocatore {{ i }}</h5>
+                            <div class="form-group">
+                                <label for="player{{ i }}">Selezione Giocatore</label>
+                                <select class="form-control" id="player{{ i }}" name="player{{ i }}">
+                                    <option value="">Select a player</option>
+                                    {% for player in players %}
+                                        <option value="{{ player.id }}">{{ player }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="points{{ i }}">Punti</label>
+                                <input type="number" class="form-control" id="points{{ i }}" name="points{{ i }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="rebounds{{ i }}">Rimbalzi</label>
+                                <input type="number" class="form-control" id="rebounds{{ i }}" name="rebounds{{ i }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="blocks{{ i }}">Assist</label>
+                                <input type="number" class="form-control" id="blocks{{ i }}" name="blocks{{ i }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% cycle '' '' '</div><div class="row">' %}
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
 {% endblock %}
 
-{% comment %}<form method="POST" action={% block url %}{% endblock %}>
-        {% csrf_token %}
-    {% for i in range %}
-        <li>
-        <label for="#player{{ i }}"><h3>Player {{ i }}:</h3></label>
-            <select name="player{{ i }}" id="#player{{ i }}" multiple>
-                {% for player in players %}
-                    <option>{{ player }}</option>
-                {% endfor %}
-            </select>
-        <br>
-        <input type="number" name="points{{ i }}" id="#points{{ i }}" placeholder="points">
-        <input type="number" name="rebounds{{ i }}" id="#rebounds{{ i }}" placeholder="rebounds">
-        <input type="number" name="blocks{{ i }}" id="#blocks{{ i }}" placeholder="assists">
-        </li>
-    {% endfor %}
+{% block scripts %}
+    <script>
+        // Add an event listener to the form's submit event
+        document.querySelector('form').addEventListener('submit', function (event) {
+            // Get all the player inputs
+            const playerInputs = document.querySelectorAll('[id^=player]');
 
-        {{ form }}
-        <button type="submit">Create</button>
-    </form>{% endcomment %}
+            // Iterate over the player inputs
+            for (let i = 0; i < playerInputs.length; i++) {
+                const playerInput = playerInputs[i];
+                const pointsInput = document.getElementById('points' + i);
+                const reboundsInput = document.getElementById('rebounds' + i);
+                const blocksInput = document.getElementById('blocks' + i);
+
+
+                // Check if points, rebounds, and blocks inputs are positive numbers
+                if (
+                    pointsInput.value !== '' &&
+                    (isNaN(pointsInput.value) || Number(pointsInput.value) < 0) ||
+                    reboundsInput.value !== '' &&
+                    (isNaN(reboundsInput.value) || Number(reboundsInput.value) < 0) ||
+                    blocksInput.value !== '' &&
+                    (isNaN(blocksInput.value) || Number(blocksInput.value) < 0)
+                ) {
+                    alert('Please enter positive numbers for statistics of Player ' + i);
+                    event.preventDefault(); // Prevent form submission
+                    return; // Exit the event listener
+                }
+            }
+        });
+    </script>
+{% endblock %}

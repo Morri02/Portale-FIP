@@ -14,6 +14,8 @@ class ChampionShip(models.Model):
     def __str__(self):
         return self.name + '(' + str(self.year) + ')'
 
+    class Meta:
+        ordering = ['name', 'year']
 
 class Team(models.Model):
     name = models.CharField(max_length=30)

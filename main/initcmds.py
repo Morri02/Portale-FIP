@@ -9,6 +9,23 @@ def create_groups():
     players.save()
 
 
+def check_matches():
+    for match in Match.objects.all():
+        pointsA = 0
+        pointsB = 0
+        if match.tabellinoA:
+            for stat in match.tabellinoA.get_stats():
+                if stat:
+                    pointsA += stat.points
+            match.pointsA = pointsA
+        if match.tabellinoB:
+            for stat in match.tabellinoB.get_stats():
+                if stat:
+                    pointsB += stat.points
+            match.pointsB = pointsB
+        match.save()
+
+
 # Una sorta di garbage collector di stat e tabellini non agganciati più a niente
 def check_stats():
     for stat in Stat.objects.all():
@@ -41,7 +58,7 @@ def check_stats():
             match.pointsB = 0
             match.save()
 
-
+    check_matches()
 def erase_db():
     print('DATABASE ERASE')
     Match.objects.all().delete()

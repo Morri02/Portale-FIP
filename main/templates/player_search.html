@@ -37,25 +37,17 @@
 
 {% block scripts %}
     <script>
-  // Access the championship and teams fields by their IDs
   const championshipField = document.getElementById('id_championship');
   const teamField = document.getElementById('id_team');
 
-  // Add an event listener to the championship field
   championshipField.addEventListener('change', function() {
-    // Get the selected championship ID
     const selectedChampionshipId = this.value;
-
-    // Perform an AJAX request to retrieve the teams for the selected championship
-    // Update the teamField options accordingly
-    // Example code to handle the AJAX request and update the teamField options:
+    console.log(selectedChampionshipId)
     fetch(`/get_teams/?championship=${selectedChampionshipId}`)
       .then(response => response.json())
       .then(data => {
-        // Clear existing options
         teamField.innerHTML = '';
 
-        // Add new options based on the retrieved data
         const teams = data.teams;
         teams.forEach(team => {
           const option = document.createElement('option');
@@ -71,40 +63,3 @@
 </script>
 
 {% endblock %}
-    {% comment %}<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <script>
-        $(document).ready(function () {
-            // Get the championship and team select elements
-            var $championshipSelect = $('#id_championship');
-            var $teamSelect = $('#id_team');
-
-            // Store the initial team options
-            var initialTeamOptions = $teamSelect.html();
-
-            // Event handler for championship select change
-            $championshipSelect.on('change', function () {
-                var selectedChampionshipId = $(this).val();
-
-                // If "All championships" is selected, reset team options to initial state
-                if (selectedChampionshipId === '') {
-                    $teamSelect.html(initialTeamOptions);
-                } else {
-                    // Make AJAX request to retrieve teams based on selected championship
-                    $.ajax({
-                        url: {% url 'main:get_teams' %},
-                        data: {championship: selectedChampionshipId},
-                        dataType: 'json',
-                        success: function (response) {
-                            // Update team options with the retrieved teams
-                            $teamSelect.html(response.html);
-                        },
-                        error: function (xhr, status, error) {
-                            console.error(error);
-                        }
-                    });
-                }
-            });
-        });
-    </script>
-{% endcomment %}

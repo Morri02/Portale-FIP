@@ -11,13 +11,17 @@
     {% if partita.tabellinoA %}
         <a href="{% url 'main:create-nuovo-tabellinoA' partita.id %}" class="btn btn-primary">Inserisci nuovo
             tabellino</a>
+        {% if user.is_superuser %}
+            <br><a href="{% url 'main:delete-tabellino' partita.tabellinoA.id %}" class="btn btn-outline-danger" style="margin-top: 20px">Cancella
+            tabellino</a>
+        {% endif %}
         <table class="table table-striped mt-3">
             <thead>
             <tr>
                 <th class="h5">Giocatore</th>
                 <th class="h5">Punti</th>
                 <th class="h5">Rimbalzi</th>
-                <th class="h5">Blocks</th>
+                <th class="h5">Assists</th>
             </tr>
             </thead>
             <tbody>
@@ -43,13 +47,17 @@
     {% if partita.tabellinoB %}
         <a href="{% url 'main:create-nuovo-tabellinoB' partita.id %}" class="btn btn-primary">Inserisci nuovo
             tabellino</a>
+        {% if user.is_superuser %}
+            <br><a href="{% url 'main:delete-tabellino' partita.tabellinoB.id %}" class="btn btn-outline-danger" style="margin-top: 20px">Cancella
+            tabellino</a>
+            {% endif %}
         <table class="table table-striped mt-3">
             <thead>
             <tr>
                 <th class="h5">Giocatore</th>
                 <th class="h5">Punti</th>
                 <th class="h5">Rimbalzi</th>
-                <th class="h5">Blocks</th>
+                <th class="h5">Assists</th>
             </tr>
             </thead>
             <tbody>

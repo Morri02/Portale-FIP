@@ -1,13 +1,12 @@
 {% extends 'base.html' %}
 
 
-{% block title %}Creazione Giocatore{% endblock %}
+{% block title %}Creazione Campionato{% endblock %}
 
 
 {% block content %}
   <div class="container">
-    <a href="{% url 'main:dashboard' %}" class="btn btn-primary">Torna alla Dashboard</a>
-    <h2>Aggiungi un nuovo giocatore{% block team %}{% endblock %}</h2>
+    <a href="{% url 'main:dashboard' %}" class="btn btn-primary" style="margin-bottom: 50px">Torna alla Dashboard</a>
     <form method="post" class="row g-3">
       {% csrf_token %}
       {{ form.as_p }}

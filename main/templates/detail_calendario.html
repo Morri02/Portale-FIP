@@ -46,7 +46,7 @@
                             <div class="row">
                                 <div class="col"><a
                                         href="{% url 'main:team-detail' partita.teamA.id %}"> {{ partita.teamA }}</a><br>
-                                    {% if not partita.pointsA %}<a
+                                    {% if not partita.tabellinoA %}<a
                                             href="{% url 'main:create-tabellinoA' partita.id %}"> Inserisci
                                         Tabellino</a>{% endif %}
                                 </div>
@@ -54,7 +54,7 @@
                                         href="{% url 'main:match-detail' partita.id %}">Vedi dettagli</a></div>
                                 <div class="col"><a
                                         href="{% url 'main:team-detail' partita.teamB.id %}"> {{ partita.teamB }}</a><br>
-                                    {% if not partita.pointsB %}<a
+                                    {% if not partita.tabellinoB %}<a
                                             href="{% url 'main:create-tabellinoB' partita.id %}"> Inserisci
                                         Tabellino</a>{% endif %}
                                 </div>

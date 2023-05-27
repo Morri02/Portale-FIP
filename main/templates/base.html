@@ -1,7 +1,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_filters %}
-{% comment %}TODO:Fai About{% endcomment %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,7 +45,7 @@
             </ul>
         </li>
         <li><a href="{% url 'main:player_search' %}" class="nav-link px-2">Cerca Giocatori</a></li>
-        <li><a href="#" class="nav-link px-2">About</a></li>
+        <li><a href="{% url 'main:about' %}" class="nav-link px-2">About</a></li>
     </ul>
 
     <div class="col-md-3 text-end">
@@ -76,6 +76,7 @@
           {% if user.is_superuser %}
             <a href="{% url 'main:dashboard' %}" class="btn btn-primary">Dashboard</a>
           {% endif %}
+          <br><span class="text-body-emphasis" style="font-size: small">Made by Marco Morini</span>
   </div>
 </footer>
 
