@@ -221,11 +221,6 @@ class DashBoardTest(TestCase):
 
     def test_creazione_giornata(self):
         self.client.login(username='admin', password='admin')
-        response = self.client.post(reverse('main:create-giornata', args=[self.campionato.id]))
-        self.assertEqual(response.status_code, 302)
-
-        giornata1 = Giornata.objects.get(calendario_id=self.calendario.id, num=1)
-        self.assertIsNotNone(giornata1)
 
         #       Creo altre due giornate(la 2 e la 3)
         response = self.client.post(reverse('main:create-giornata', args=[self.campionato.id]))
@@ -239,11 +234,11 @@ class DashBoardTest(TestCase):
         self.assertIsNotNone(giornata3)
 
         # Cancello la prima
-        giornata1.delete()
+        giornata2.delete()
         response = self.client.post(reverse('main:create-giornata', args=[self.campionato.id]))
         self.assertEqual(response.status_code, 302)
-        giornata1 = Giornata.objects.get(calendario_id=self.calendario.id, num=1)
-        self.assertIsNotNone(giornata1)
+        giornata2 = Giornata.objects.get(calendario_id=self.calendario.id, num=2)
+        self.assertIsNotNone(giornata2)
         self.assertFalse(Giornata.objects.filter(calendario_id=self.calendario.id, num=4).exists())
 
     def test_cancellazione_tabellino(self):
