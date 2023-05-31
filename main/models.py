@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser, User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.utils import timezone
 
 
 # Create your models here.
@@ -8,7 +9,7 @@ from django.db import models
 class ChampionShip(models.Model):
     name = models.CharField(max_length=20)
     #    teams = models.ManyToManyField(Team, related_name='championships')
-    year = models.PositiveSmallIntegerField()
+    year = models.PositiveSmallIntegerField(default=timezone.now().year)
     location = models.CharField(max_length=20)
 
     def __str__(self):
@@ -219,6 +220,9 @@ class Match(models.Model):
     def __str__(self):
         return '(' + str(self.date.day) + '/' + str(self.date.month) + '/' + str(self.date.year) + ')   ' + str(
             self.pointsA) + ' :' + self.teamA.name + ' - ' + self.teamB.name + ': ' + str(self.pointsB)
+
+    class Meta:
+        ordering = ['date']
 
 
 class Commento(models.Model):

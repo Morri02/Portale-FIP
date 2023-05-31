@@ -14,9 +14,9 @@
 
     <h3 class="mt-4 display-8">{{ partita.teamA.name }}:</h3>
     {% if partita.tabellinoA %}
-        <a href="{% url 'main:create-nuovo-tabellinoA' partita.id %}" class="btn btn-primary">Inserisci nuovo
-            tabellino</a>
         {% if user.is_superuser %}
+            <a href="{% url 'main:create-nuovo-tabellinoA' partita.id %}" class="btn btn-primary">Inserisci nuovo
+            tabellino</a>
             <br><a href="{% url 'main:delete-tabellino' partita.tabellinoA.id %}" class="btn btn-outline-danger"
                    style="margin-top: 20px">Cancella
             tabellino</a>
@@ -51,9 +51,9 @@
 
     <h3 class="mt-4 display-8">{{ partita.teamB.name }}:</h3>
     {% if partita.tabellinoB %}
-        <a href="{% url 'main:create-nuovo-tabellinoB' partita.id %}" class="btn btn-primary">Inserisci nuovo
-            tabellino</a>
         {% if user.is_superuser %}
+            <a href="{% url 'main:create-nuovo-tabellinoB' partita.id %}" class="btn btn-primary">Inserisci nuovo
+            tabellino</a>
             <br><a href="{% url 'main:delete-tabellino' partita.tabellinoB.id %}" class="btn btn-outline-danger"
                    style="margin-top: 20px">Cancella
             tabellino</a>
@@ -151,11 +151,13 @@
                 success: function (response) {
                     if (response.authenticated === false) {
                         // Utente non autenticato, reindirizza alla pagina di login
-                        window.location.href = "{% url 'main:login' %}?next=" + window.location.href;
+                        window.location.href = "{% url 'users:login' %}?next=" + window.location.href;
                     } else {
-                        // Aggiorna il numero di likes visualizzato
+                        // Aggiorno
                         var likesCount = response.likes_count;
+                        var dislikesCount = response.dislikes_count;
                         $('.like[data-comment-id="' + commentId + '"] + span').text(likesCount);
+                        $('.dislike[data-comment-id="' + commentId + '"] + span').text(dislikesCount);
                     }
                 }
             });
@@ -173,10 +175,12 @@
                 success: function (response) {
                     if (response.authenticated === false) {
                         // Utente non autenticato, reindirizza alla pagina di login
-                        window.location.href = "{% url 'main:login' %}?next=" + window.location.href;
+                        window.location.href = "{% url 'users:login' %}?next=" + window.location.href;
                     } else {
-                        // Aggiorna il numero di dislikes visualizzato
+                        // Aggiorno
+                        var likesCount = response.likes_count;
                         var dislikesCount = response.dislikes_count;
+                        $('.like[data-comment-id="' + commentId + '"] + span').text(likesCount);
                         $('.dislike[data-comment-id="' + commentId + '"] + span').text(dislikesCount);
                     }
                 }

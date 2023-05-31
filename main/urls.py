@@ -1,12 +1,10 @@
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import path
+from django.urls import path, include
 from .views import *
 from django.contrib import admin
 from .initcmds import *
 from django.contrib.auth import views as auth_views
-
-
 
 app_name = 'main'
 
@@ -46,28 +44,23 @@ urlpatterns = [
     path('delete/champ/<int:pk>', DeleteChampView.as_view(), name='delete-championship'),
     path('delete/all/champ/<int:champ_id>', delete_champ_all, name='delete-all-championship'),
 
+
     path('create/team/', CreateTeamView.as_view(), name='create-team'),
     path('add/team/<int:campionato_id>', add_team, name='add-team'),
     path('update/team/<int:pk>', UpdateTeamView.as_view(), name='update-team'),
     path('delete/team/<int:pk>', DeleteTeamView.as_view(), name='delete-team'),
 
-    #path('player<int:pk>/count/', count_points, name='points-count'),
+    # path('player<int:pk>/count/', count_points, name='points-count'),
 
-    #path('create/stat/', CreateStatView.as_view(), name='create-stat'),
+    # path('create/stat/', CreateStatView.as_view(), name='create-stat'),
     path('create/tabellinoA/<int:match_id>/', create_tabellinoA, name='create-tabellinoA'),
     path('create/nuovo/tabellinoA/<int:match_id>/', create_tabellinoA, name='create-nuovo-tabellinoA'),
     path('create/tabellinoB/<int:match_id>/', create_tabellinoB, name='create-tabellinoB'),
     path('create/nuovo/tabellinoB/<int:match_id>/', create_tabellinoB, name='create-nuovo-tabellinoB'),
     path('delete/tabellino/<int:pk>', DeleteTabellinoView.as_view(), name='delete-tabellino'),
 
-
-
     path('detail/campionato/<int:pk>', DetailCalendarioView.as_view(), name='detail-calendario'),
 
-    #log in e out
-    path('login/', auth_views.LoginView.as_view(), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('signup/', UserCreateView.as_view(), name='signup'),
 
     path('dashboard/', dashboard_view, name='dashboard'),
 

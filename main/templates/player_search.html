@@ -1,16 +1,8 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block styles %}
-    <style>
-        p.no-results {
-            text-align: center;
-            color: #888;
-        }
-    </style>
-{% endblock %}
 {% block content %}
-    <h1>Player Search</h1>
+    <h1>Ricerca Giocatore</h1>
     <form method="POST" action="{% url 'main:player_search' %}">
         {% csrf_token %}
         {{ form }}
@@ -37,29 +29,29 @@
 
 {% block scripts %}
     <script>
-  const championshipField = document.getElementById('id_championship');
-  const teamField = document.getElementById('id_team');
+        const championshipField = document.getElementById('id_championship');
+        const teamField = document.getElementById('id_team');
 
-  championshipField.addEventListener('change', function() {
-    const selectedChampionshipId = this.value;
-    console.log(selectedChampionshipId)
-    fetch(`/get_teams/?championship=${selectedChampionshipId}`)
-      .then(response => response.json())
-      .then(data => {
-        teamField.innerHTML = '';
+        championshipField.addEventListener('change', function () {
+            const selectedChampionshipId = this.value;
+            console.log(selectedChampionshipId)
+            fetch(`/get_teams/?championship=${selectedChampionshipId}`)
+                .then(response => response.json())
+                .then(data => {
+                    teamField.innerHTML = '';
 
-        const teams = data.teams;
-        teams.forEach(team => {
-          const option = document.createElement('option');
-          option.value = team.id;
-          option.textContent = team.name;
-          teamField.appendChild(option);
+                    const teams = data.teams;
+                    teams.forEach(team => {
+                        const option = document.createElement('option');
+                        option.value = team.id;
+                        option.textContent = team.name;
+                        teamField.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         });
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
-  });
-</script>
+    </script>
 
 {% endblock %}

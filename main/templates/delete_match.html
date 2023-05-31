@@ -5,6 +5,7 @@ Cancella Partita
 {% endblock %}
 
 {% block content %}
+    <a href="{% url 'main:dashboard' %}" class="btn btn-primary" style="margin-bottom: 50px">Torna alla Dashboard</a>
     <h3>Vuoi eliminare la partita:{{ match.teamA }} - {{ match.teamB }}??</h3>
     <form method="post" action="{% url 'main:delete-match' match.pk %}">
         {% csrf_token %}

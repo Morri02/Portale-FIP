@@ -4,7 +4,7 @@
 {% block content %}
     {% if team.players.all %}
         <h2 class="text-warning-emphasis">Impossibile eliminare {{ team.name }} perchè ci sono ancora giocatori nella squadra</h2>
-        <p>Eliminare prima i seguenti giocatori:</p>
+        <p>Eliminare prima i seguenti giocatori:(o cambiagli la squadra)</p>
         {% for player in team.players.all %}
             <ul>{{ player }}</ul>
         {% endfor %}

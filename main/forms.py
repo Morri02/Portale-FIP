@@ -19,13 +19,13 @@ class PlayerSearchForm(forms.Form):
 
     def get_championship_choices(self):
         championships = ChampionShip.objects.all()
-        choices = [('', 'All championships')]
+        choices = [('', 'Tutti i Campionati')]
         choices += [(championship.id, championship.name) for championship in championships]
         return choices
 
     def get_team_choices(self):
         teams = Team.objects.all()
-        choices = [('', 'All teams')]
+        choices = [('', 'Tutte le Squadre')]
         choices += [(team.id, team.name) for team in teams]
         return choices
 

@@ -3,7 +3,7 @@
 
 {% block content %}
     <a href="{% url 'main:dashboard' %}" class="btn btn-primary" style="margin-bottom: 50px">Torna alla Dashboard</a>
-    {% if champ.teams %}
+    {% if champ.teams.count > 0 %}
         <h2 class="text-danger">Ci sono ancora squadre nel campionato!</h2>
         <h4>Vuoi forzare la cancellazione di tutte le squadre nel campionato??</h4>
         <form method="post" action="{% url 'main:delete-all-championship' champ.pk %}">

@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.views import LoginView
 from django.db.models import Q
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.urls import reverse_lazy, reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -29,6 +30,7 @@ def home_page(request):
     return render(request, 'home_page.html')
 
 
+@user_passes_test(lambda u: u.is_staff)
 def test_base(request):
     return render(request, 'base.html')
 
@@ -46,7 +48,7 @@ def get_teams(request):
     else:
         teams = Team.objects.none()
 
-    team_data = [{'id': '', 'name': 'All Teams'}] + [{'id': team.id, 'name': team.name} for team in teams]
+    team_data = [{'id': '', 'name': 'Tutte le Squadre'}] + [{'id': team.id, 'name': team.name} for team in teams]
 
     return JsonResponse({'teams': team_data})
 
@@ -85,7 +87,7 @@ def player_search(request):
             championship = form.cleaned_data.get('championship')
 
             if championship != '':
-                form.fields['team'].choices = [('', 'All teams')]
+                form.fields['team'].choices = [('', 'Tutte le Squadre')]
                 teams = Team.objects.filter(championships_id__exact=championship)
                 form.fields['team'].choices += [(team.id, team.name) for team in teams]
                 players = players.filter(team__in=ChampionShip.objects.get(pk=championship).teams.all())
@@ -253,16 +255,27 @@ class DetailTeamView(DetailView):
     template_name = 'detail_team.html'
     context_object_name = 'squadra'
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        partite = []
+        for giornata in self.object.championships.calendario.giornate.all():
+            for partita in giornata.partite.all():
+                if self.object == partita.teamA or self.object == partita.teamB:
+                    partite.append(partita)
+        partite.sort(key=lambda x: x.date)
+        ctx['partite'] = partite
+        return ctx
+
 
 ########################################################################################################################
 # Campionati
-# TODO: Fai tutte le views
 
 class UpdateChampView(UserPassesTestMixin, UpdateView):
     model = ChampionShip
     context_object_name = 'campionato'
     template_name = 'update_champ.html'
     success_url = reverse_lazy('main:dashboard')
+    fields = '__all__'
 
     def test_func(self):
         return self.request.user.is_staff
@@ -296,6 +309,11 @@ class CreateChampView(UserPassesTestMixin, CreateView):
     def test_func(self):
         return self.request.user.is_staff
 
+    def get_success_url(self):
+        Calendario.objects.create(championship_id=self.object.id)
+
+        return super().get_success_url()
+
 
 class ListChampionshipView(ListView):
     model = ChampionShip
@@ -323,7 +341,7 @@ def create_giornata(request, campionato_id):
     l.sort()
     for i in range(1, len(l) + 1):
         if i not in l:
-            print('manca il' + str(i))
+#            print('manca il' + str(i))
             num = i
             break
     if num == 0:
@@ -355,7 +373,7 @@ class DeleteTabellinoView(UserPassesTestMixin, DeleteView):
             pass
         return reverse('main:match-detail', args=[partita.pk])
 
-    def delete(self, request, *args, **kwargs):
+    def form_valid(self, form):
         t = self.get_object()
         try:
             if t.partitaA:
@@ -372,7 +390,7 @@ class DeleteTabellinoView(UserPassesTestMixin, DeleteView):
         except Exception:
             pass
 
-        return super().delete(request, *args, **kwargs)
+        return super().form_valid(form)
 
     def test_func(self):
         return self.request.user.is_staff
@@ -414,6 +432,7 @@ class DetailCalendarioView(DetailView):
         return ctx
 
 
+# TODO:Togli il fatto di poterne inserire uno nuovo
 @login_required
 def create_tabellinoA(request, match_id):
     return create_tabellino(request, match_id, 'A')
@@ -482,6 +501,16 @@ def inserisci_statistiche(tabellino, list_stats):
 @login_required
 def create_tabellino(request, match_id, lettera):
     partita = Match.objects.get(pk=match_id)
+    error_str = "<h1>403 Forbidden</h1><h3>Non sei autorizzato a eseguire questa azione. Un tabellino è già stato inserito.</h3>"
+    if lettera == 'A':
+        if partita.tabellinoA and not request.user.is_staff:
+            return HttpResponseForbidden(error_str)
+
+    if lettera == 'B':
+        if partita.tabellinoB and not request.user.is_staff:
+            return HttpResponseForbidden(
+                error_str)
+
     template_name = 'create_tabellino' + lettera + '.html'
     errors = []
 
@@ -535,7 +564,7 @@ def create_tabellino(request, match_id, lettera):
                     partita.tabellinoB = tabellino
                     partita.pointsB = total_points
             partita.save()
-            print(str(tabellino.created_by) + ' ha creato un tabellino')
+            #            print(str(tabellino.created_by) + ' ha creato un tabellino')
             return redirect('main:match-detail', pk=match_id)
 
     context = {'players': Player.objects.filter(team_id=partita.teamA.id) if lettera == 'A' else Player.objects.filter(
@@ -559,17 +588,16 @@ def get_pk_player(player):
     return player_id
 
 
-@login_required
+@user_passes_test(lambda u: u.is_staff)
 def create_nuovo_tabellinoA(request, match_id):
     return create_nuovo_tabellino(request, match_id, 'A')
 
 
-@login_required
+@user_passes_test(lambda u: u.is_staff)
 def create_nuovo_tabellinoB(request, match_id):
     return create_nuovo_tabellino(request, match_id, 'B')
 
 
-@login_required
 def create_nuovo_tabellino(request, match_id, lettera):
     partita = Match.objects.get(pk=match_id)
     if lettera == 'A':
@@ -664,12 +692,6 @@ class DeleteMatchView(DeleteView):
 ########################################################################################################################
 # Admin
 
-class UserCreateView(CreateView):
-    form_class = UserCreationForm
-    template_name = "registration/signup.html"
-    success_url = reverse_lazy("main:homepage")
-
-
 @user_passes_test(lambda u: u.is_staff)
 def dashboard_view(request):
     context = {'squadre': Team.objects.all().order_by('name'),
@@ -681,7 +703,6 @@ def dashboard_view(request):
 
 ########################################################################################################################
 # Commenti
-# TODO: like
 def delete_comment(request, comment_id):
     commento = get_object_or_404(Commento, id=comment_id)
 
@@ -714,17 +735,21 @@ def like_comment(request):
     comment_id = request.POST.get('comment_id')
     comment = Commento.objects.get(id=comment_id)
     if request.user.is_authenticated:
-        # Controllo se l'utente ha già messo like al commento
+        # Controllo se l'utente ha già messo like o dislike al commento
         user_liked = Like.objects.filter(comment=comment, created_by=request.user).exists()
-
+        user_disliked = DisLike.objects.filter(comment=comment, created_by=request.user).exists()
         if user_liked:
             comment.likes.filter(created_by=request.user).delete()
         else:
             Like.objects.create(comment=comment, created_by=request.user)
+            if user_disliked:
+                comment.dislikes.filter(created_by=request.user).delete()
 
     likes_count = comment.likes.count()
+    dislikes_count = comment.dislikes.count()
     response_data = {
         'likes_count': likes_count,
+        'dislikes_count': dislikes_count,
         'authenticated': request.user.is_authenticated
     }
     return JsonResponse(response_data)
@@ -737,12 +762,19 @@ def dislike_comment(request):
     comment = Commento.objects.get(pk=comment_id)
     if request.user.is_authenticated:
         user_disliked = DisLike.objects.filter(comment=comment, created_by=request.user).exists()
+        user_liked = Like.objects.filter(comment=comment, created_by=request.user).exists()
         if user_disliked:
             comment.dislikes.filter(created_by=request.user).delete()
         else:
             DisLike.objects.create(comment=comment, created_by=request.user)
+            if user_liked:
+                comment.likes.filter(created_by=request.user).delete()
 
-    response = {'dislikes_count': comment.dislikes.count(),
-                'authenticated': request.user.is_authenticated
-                }
-    return JsonResponse(response)
+    likes_count = comment.likes.count()
+    dislikes_count = comment.dislikes.count()
+    response_data = {
+        'likes_count': likes_count,
+        'dislikes_count': dislikes_count,
+        'authenticated': request.user.is_authenticated
+    }
+    return JsonResponse(response_data)
