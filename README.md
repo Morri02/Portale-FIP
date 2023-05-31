@@ -5,9 +5,13 @@ Questo sito è fatto da me Marco Morini, per l'esame di Tecnologie Web dell'Univ
 Per informazioni più dettagliate, consultare il documento: FIP.docx
 
 Le principali istruzioni per l'installazione del progetto insieme alle se librerie sono:
+
 git clone https://github.com/Morri02/basketBallWebSIte.git
+
 cd basketBallWebSite
+
 pipenv shell
+
 pipenv install django
 
 pip install django-cleanup
