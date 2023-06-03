@@ -74,11 +74,17 @@
     </div>
 
     <h2 id="manipolazione-tabelle">Manipolazione tabelle:</h2>
-    <a href="{% url 'main:create-championship' %}" class="btn btn-outline-primary" style="margin-bottom: 20px">Aggiungi
+    <a href="{% url 'main:create-championship' %}" class="btn btn-outline-primary btn-lg" style="margin-bottom: 20px">Aggiungi
         campionato</a><br>
+    <p style="display: inline">Campionati:</p>
     {% for campionato in campionati %}
         <a href="#campionato{{ campionato.pk }}">{{ campionato.name }}</a>
     {% endfor %}
+    <br>
+    <br>
+    <p style="display: inline">Tabelle:</p>
+    <a href="#giocatori">Lista Giocatori</a>
+    <a href="#allenatori">Lista Allenatori</a>
 
     <div class="table-responsive" style="margin-top: 30px">
         {% for campionato in campionati %}
@@ -110,6 +116,8 @@
                             <tr>
                                 <td>{{ squadra }}</td>
                                 <td>
+                                    <a href="{% url 'main:add-coach' squadra.id %}" class="btn btn-success btn-sm">Aggiungi
+                                        Allenatore</a>
                                     <a href="{% url 'main:team-detail' squadra.id %}"
                                        class="btn btn-sm btn-secondary">Dettagli</a>
                                     <a href="{% url 'main:update-team' squadra.id %}"
@@ -138,7 +146,7 @@
             <tbody>
             <tr>
                 <td style="margin-top: 100px">
-                    <h3>Giocatori</h3>
+                    <h3 id="giocatori">Giocatori</h3>
                 </td>
                 <td>
                     <a href="{% url 'main:create-player' %}" class="btn btn-primary">Crea giocatore</a>
@@ -170,12 +178,48 @@
                     </table>
                 </td>
             </tr>
-            <!-- Aggiungi altre righe per gli altri modelli -->
             </tbody>
         </table>
     </div>
 
-
+<div class="table-responsive">
+        <table class="table">
+            <tbody>
+            <tr>
+                <td style="margin-top: 100px">
+                    <h3 id="allenatori">Allenatori</h3>
+                </td>
+                <td>
+                    <a href="{% url 'main:create-coach' %}" class="btn btn-primary">Crea allenatore</a>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Azioni</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for coach in allenatori %}
+                            <tr>
+                                <td>{{ coach }}</td>
+                                <td>
+                                    <a href="{% url 'main:update-coach' coach.id %}"
+                                       class="btn btn-sm btn-warning">Modifica</a>
+                                    <a href="{% url 'main:delete-coach' coach.id %}" class="btn btn-sm btn-danger">Cancella</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
 
 

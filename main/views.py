@@ -146,7 +146,7 @@ class DetailPlayerView(DetailView):
 class DeletePlayerView(UserPassesTestMixin, DeleteView):
     model = Player
     template_name = 'delete_player.html'
-    success_url = reverse_lazy('main:list-players')
+    success_url = reverse_lazy('main:dashboard')
     context_object_name = 'player'
 
     def test_func(self):
@@ -168,13 +168,13 @@ class UpdatePlayerView(UserPassesTestMixin, UpdateView):
 class CreatePlayerView(UserPassesTestMixin, CreateView):
     model = Player
     fields = '__all__'
-    success_url = reverse_lazy('main:homepage')
+    success_url = reverse_lazy('main:dashboard')
     template_name = 'create_player.html'
 
     def test_func(self):
         return self.request.user.is_staff
 
-
+@user_passes_test(lambda u: u.is_staff)
 def add_player(request, team_id):
     if request.method == 'POST':
         form = AddPlayerForm(request.POST)
@@ -189,13 +189,73 @@ def add_player(request, team_id):
 
             player.save()
 
-            return redirect('main:add-player', team_id=team_id)
+            return redirect('main:dashboard')
         else:
             return render(request, 'add_player.html', context={'form': form})
     else:
         form = AddPlayerForm()
 
         return render(request, 'add_player.html', context={'form': form, 'squadra': Team.objects.get(pk=team_id)})
+
+##################################################################################################################
+#Coach
+
+
+class DeleteCoachView(UserPassesTestMixin, DeleteView):
+    model = Coach
+    template_name = 'delete_coach.html'
+    success_url = reverse_lazy('main:dashboard')
+    context_object_name = 'coach'
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+
+class UpdateCoachView(UserPassesTestMixin, UpdateView):
+    model = Coach
+    fields = '__all__'
+    template_name = 'update_coach.html'
+    context_object_name = 'coach'
+
+    def get_success_url(self):
+        return reverse_lazy('main:dashboard')
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+class CreateCoachView(UserPassesTestMixin, CreateView):
+    model = Coach
+    fields = '__all__'
+    success_url = reverse_lazy('main:dashboard')
+    template_name = 'create_coach.html'
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+
+
+@user_passes_test(lambda u: u.is_staff)
+def add_coach(request, team_id):
+    if request.method == 'POST':
+        form = AddCoachForm(request.POST)
+        if form.is_valid():
+            coach = Coach(team_id=team_id)
+            coach.name = form.cleaned_data.get('name')
+            coach.last_name = form.cleaned_data.get('last_name')
+            coach.birth_date = form.cleaned_data.get('birth_date')
+            coach.profile_img = form.cleaned_data.get('profile_img')
+
+            coach.save()
+
+            return redirect('main:dashboard')
+        else:
+            return render(request, 'add_coach.html', context={'form': form})
+    else:
+        form = AddCoachForm()
+
+        return render(request, 'add_coach.html', context={'form': form, 'squadra': Team.objects.get(pk=team_id)})
+
+
 
 
 ########################################################################################################################
@@ -432,7 +492,6 @@ class DetailCalendarioView(DetailView):
         return ctx
 
 
-# TODO:Togli il fatto di poterne inserire uno nuovo
 @login_required
 def create_tabellinoA(request, match_id):
     return create_tabellino(request, match_id, 'A')
@@ -538,8 +597,18 @@ def create_tabellino(request, match_id, lettera):
                 continue
 
             if player_id != '':
-                list_stats.append(Stat(player_id=player_id, points=points, rebounds=rebounds,
+                duplicate = False
+                for j in range(0, len(list_inputs) - 1):
+                    if player_id == list_inputs[i][0]:
+                        duplicate = True
+                        break
+                if not duplicate:
+                    list_stats.append(Stat(player_id=player_id, points=points, rebounds=rebounds,
                                        blocks=blocks))
+                else:
+                    errors.append(f'Errore: Il giocatore {i} è stato inserito più di una volta')
+                    list_stats.append(None)
+                    continue
             else:
                 list_stats.append(None)
                 continue
@@ -696,6 +765,7 @@ class DeleteMatchView(DeleteView):
 def dashboard_view(request):
     context = {'squadre': Team.objects.all().order_by('name'),
                'giocatori': Player.objects.all().order_by('last_name'),
+               'allenatori': Coach.objects.all().order_by('last_name'),
                'partite': Match.objects.all().order_by('date'),
                'campionati': ChampionShip.objects.all().order_by('name')}
     return render(request, 'dashboard.html', context)

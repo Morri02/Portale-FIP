@@ -82,7 +82,7 @@
                                     {% endif %}
                                 {% else %}
                                     <td>
-                                        <a href="{% url 'main:team-detail' partita.teamA.pk %}"> {{ partita.teamA.name }}</a>[{{ partita.pointsA }}-{{ partita.pointsB }}]
+                                        <a href="{% url 'main:match-detail' partita.pk %}"> {{ partita.teamA.name }}</a>[{{ partita.pointsA }}-{{ partita.pointsB }}]
                                     </td>
                                     {% if partita in partite_in_trasferta_giocate %}
                                         {% for stat in partita.tabellinoB.get_stats %}

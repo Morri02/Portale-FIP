@@ -46,36 +46,3 @@
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 {% endblock %}
-
-{% block scripts %}
-    <script>
-        // Add an event listener to the form's submit event
-        document.querySelector('form').addEventListener('submit', function (event) {
-            // Get all the player inputs
-            const playerInputs = document.querySelectorAll('[id^=player]');
-
-            // Iterate over the player inputs
-            for (let i = 0; i < playerInputs.length; i++) {
-                const playerInput = playerInputs[i];
-                const pointsInput = document.getElementById('points' + i);
-                const reboundsInput = document.getElementById('rebounds' + i);
-                const blocksInput = document.getElementById('blocks' + i);
-
-
-                // Check if points, rebounds, and blocks inputs are positive numbers
-                if (
-                    pointsInput.value !== '' &&
-                    (isNaN(pointsInput.value) || Number(pointsInput.value) < 0) ||
-                    reboundsInput.value !== '' &&
-                    (isNaN(reboundsInput.value) || Number(reboundsInput.value) < 0) ||
-                    blocksInput.value !== '' &&
-                    (isNaN(blocksInput.value) || Number(blocksInput.value) < 0)
-                ) {
-                    alert('Please enter positive numbers for statistics of Player ' + i);
-                    event.preventDefault(); // Prevent form submission
-                    return; // Exit the event listener
-                }
-            }
-        });
-    </script>
-{% endblock %}

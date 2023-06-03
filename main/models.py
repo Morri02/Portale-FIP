@@ -13,7 +13,7 @@ class ChampionShip(models.Model):
     location = models.CharField(max_length=20)
 
     def __str__(self):
-        return self.name + '(' + str(self.year) + ')'
+        return self.name# + '(' + str(self.year) + ')'
 
     class Meta:
         ordering = ['name', 'year']
@@ -63,19 +63,19 @@ class Team(models.Model):
 class Coach(models.Model):
     name = models.CharField(max_length=15)
     last_name = models.CharField(max_length=15)
-    birth_date = models.DateTimeField()
+    birth_date = models.DateField(default='01/01/2001')
     team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name='coaches')
     profile_img = models.ImageField(upload_to='staff_images/', blank=True, null=True)
 
     def __str__(self):
-        return self.name + ' ' + self.last_name
+        return self.name + ' ' + self.last_name + ', ' + self.team.name
 
 
 class Player(models.Model):
     name = models.CharField(max_length=15)
     last_name = models.CharField(max_length=15)
     role = models.CharField(max_length=15, default='Guardia')
-    birth_date = models.DateTimeField()
+    birth_date = models.DateField(default='01/01/2001')
     number: int = models.IntegerField()
     team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name='players')
     profile_img = models.ImageField(upload_to='player_images/', blank=True, null=True)

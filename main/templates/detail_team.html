@@ -24,7 +24,7 @@
                         <p class="card-text"><strong>Sponsor:</strong> {{ squadra.main_sponsor }}</p>
                         <p class="card-text"><strong>Staff tecnico:</strong>
                             {% for coach in squadra.coaches.all %}
-                                {{ coach }};
+                                {{ coach.name }} {{ coach.last_name }}
                             {% empty %}
                                 Nessun allenatore registrato.
                             {% endfor %}

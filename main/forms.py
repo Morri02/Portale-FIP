@@ -32,6 +32,7 @@ class PlayerSearchForm(forms.Form):
 
 class CreateMatchForm(forms.ModelForm):
     date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+
     def clean(self):
         if self.cleaned_data['teamA'] == self.cleaned_data['teamB']:
             self.add_error("teamB", "Non può giocare con sè stessa")
@@ -51,8 +52,15 @@ class AddPlayerForm(forms.ModelForm):
         fields = ['name', 'last_name', 'number', 'role', 'birth_date', 'profile_img']
 
 
-class AddTeamForm(forms.ModelForm):
+class AddCoachForm(forms.ModelForm):
+    birth_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
 
+    class Meta:
+        model = Player
+        fields = ['name', 'last_name', 'birth_date', 'profile_img']
+
+
+class AddTeamForm(forms.ModelForm):
     class Meta:
         model = Team
         fields = ['name', 'city', 'img', 'main_sponsor']
@@ -66,4 +74,3 @@ class CreateTabellinoForm(forms.ModelForm):
     class Meta:
         model = Tabellino
         fields = '__all__'
-

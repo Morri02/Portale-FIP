@@ -27,6 +27,11 @@ urlpatterns = [
     path('update/player/<int:pk>', UpdatePlayerView.as_view(), name='update-player'),
     path('delete/player/<int:pk>/', DeletePlayerView.as_view(), name='delete-player'),
 
+    path('add/coach/<int:team_id>', add_coach, name='add-coach'),
+    path('create/coach/', CreateCoachView.as_view(), name='create-coach'),
+    path('update/coach/<int:pk>', UpdateCoachView.as_view(), name='update-coach'),
+    path('delete/coach/<int:pk>', DeleteCoachView.as_view(), name='delete-coach'),
+
     path('get_teams/', get_teams, name='get_teams'),
 
     path('player/search/', player_search, name='player_search'),

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Creazione Allenatore{% endblock %}
+
+
+{% block content %}
+  <div class="container">
+    <a href="{% url 'main:dashboard' %}" class="btn btn-primary">Torna alla Dashboard</a>
+    <h2>Aggiungi un nuovo allenatore</h2>
+    <form method="post" class="row g-3">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary">Aggiungi</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}
+
