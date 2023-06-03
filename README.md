@@ -14,14 +14,17 @@ pipenv shell
 
 pipenv install django
 
+pip install pillow
+
+pip install django-taggit
+
 pip install django-cleanup
 
 pip install django-extensions
 
-#Installazione principali moduli utilizzati
 pip install pydotplus
 
-pip install crispy-forms
+pip install django-crispy-forms
 
 pip install bootstrap4
 
