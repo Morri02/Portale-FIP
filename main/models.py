@@ -39,22 +39,54 @@ class Team(models.Model):
         for giornata in Giornata.objects.filter(calendario_id=calendario_id):
             for partita in Match.objects.filter(giornata_id=giornata.pk):
                 if self.pk == partita.teamA.id:
-                    if partita.pointsA > partita.pointsB:
+                    if partita.pointsA > partita.pointsB and partita.tabellinoB:
                         punti += 2
                         vittorie += 1
                     elif partita.pointsA < partita.pointsB:
                         sconfitte += 1
 
                 if self.pk == partita.teamB.id:
-                    if partita.pointsA < partita.pointsB:
+                    if partita.pointsA < partita.pointsB and partita.tabellinoA:
                         punti += 2
                         vittorie += 1
                     elif partita.pointsA > partita.pointsB:
                         sconfitte += 1
 
-        # print(str(self) + ' ha ' + str(punti) + ' punti')
 
         return punti, vittorie, sconfitte
+
+    def get_media_punti_partita(self):
+        punti_segnati = 0
+        punti_subiti = 0
+        num_partite_giocate = 0
+
+        for partita in Match.objects.filter(teamA_id=self.pk):
+                punti_segnati += partita.pointsA
+                punti_subiti += partita.pointsB
+                num_partite_giocate += 1
+
+        for partita in Match.objects.filter(teamB_id=self.pk):
+                punti_segnati += partita.pointsB
+                punti_subiti += partita.pointsA
+                num_partite_giocate += 1
+        num_partite_giocate = 1 if num_partite_giocate == 0 else num_partite_giocate
+
+        return round(punti_segnati / num_partite_giocate, 3), round(punti_subiti / num_partite_giocate, 2)
+
+    def get_best_marcatore_rimbalzista_assistman(self):
+        best ={'punti': [None, 0], 'rimbalzi': [None, 0], 'assists': [None, 0]}
+        for player in self.players.all():
+            punti, rimbalzi, assists = player.get_total_points()
+            if punti > best['punti'][1]:
+                best['punti'][1] = punti
+                best['punti'][0] = player
+            if rimbalzi > best['rimbalzi'][1]:
+                best['rimbalzi'][1] = rimbalzi
+                best['rimbalzi'][0] = player
+            if assists > best['assists'][1]:
+                best['assists'][1] = assists
+                best['assists'][0] = player
+        return best['punti'][0], best['rimbalzi'][0], best['assists'][0]
 
     class Meta:
         ordering = ['name']
@@ -83,6 +115,11 @@ class Player(models.Model):
     def __str__(self):
         return self.last_name + ' ' + self.name + ' #' + str(self.number)
 
+    def get_partite(self):
+        partite = []
+        for match in Match.objects.filter(teamA=self.team) | Match.objects.filter(teamB=self.team):
+            partite.append(match)
+        return partite
     def get_partite_in_casa(self):
         partite = []
         partite_giocate = []
@@ -181,10 +218,8 @@ class Calendario(models.Model):
             squadra_punti_w_l.append([team.id, punti, vittorie, sconfitte])
 
         squadra_punti_w_l.sort(key=lambda x: x[1], reverse=True)
-        # print(str(squadra_punti_w_l))
         for obj in squadra_punti_w_l:
             classifica.append(obj[0])
-        # print('Classifica aggiornata:' + str(classifica))
         return squadra_punti_w_l
 
     class Meta:

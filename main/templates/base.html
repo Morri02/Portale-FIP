@@ -73,9 +73,11 @@
     </div>
     <div class="text-end">
         {% if user.is_superuser %}
-            <a href="{% url 'main:dashboard' %}" class="btn btn-primary">Dashboard</a>
+            <a href="{% url 'main:dashboard' %}" class="btn btn-primary">Dashboard</a><br>
         {% endif %}
-        <br><span class="text-body-emphasis" style="font-size: small">Made by Marco Morini</span>
+        {% if request.user.is_authenticated %}
+            <span>Registrato come: {{ request.user }}  </span>
+        {% endif %}
     </div>
 </footer>
 

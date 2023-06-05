@@ -2,7 +2,7 @@
 
 
 {% block content %}
-    <h2>Aggiungi Partita</h2>
+    <h2>Aggiungi Partita alla {{ giornata.num }}° giornata di {{ giornata.calendario }}</h2>
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}

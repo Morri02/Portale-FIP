@@ -24,7 +24,7 @@
                         <p class="card-text"><strong>Sponsor:</strong> {{ squadra.main_sponsor }}</p>
                         <p class="card-text"><strong>Staff tecnico:</strong>
                             {% for coach in squadra.coaches.all %}
-                                {{ coach.name }} {{ coach.last_name }}
+                                {{ coach.name }} {{ coach.last_name }};
                             {% empty %}
                                 Nessun allenatore registrato.
                             {% endfor %}
@@ -34,71 +34,94 @@
                         </p>
                     </div>
                 </div>
-                <h3 class="mt-4">Giocatori:</h3>
-                {% if squadra.players.count > 0 %}
-                    <ul class="list-group">
-                        {% for giocatore in squadra.players.all %}
-                            <li class="list-group-item"><a
-                                    href="{% url 'main:player-detail' giocatore.id %}">{{ giocatore }}</a></li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="text-muted">Nessun giocatore registrato per questa squadra</p>
-                {% endif %}
+                <div class="card mt-auto">
+                    <h3 class="card-title">Giocatori:</h3>
+                    {% if squadra.players.count > 0 %}
+                        <ul class="list-group">
+                            {% for giocatore in squadra.players.all %}
+                                <li class="list-group-item"><a
+                                        href="{% url 'main:player-detail' giocatore.id %}">{{ giocatore }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">Nessun giocatore registrato per questa squadra</p>
+                    {% endif %}
+                </div>
             </div>
             <div class="col-md-6">
-                <h3 class="mb-4">Partite della stagione:</h3>
-                {% if squadra.championships %}
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Avversario</th>
-                            <th>Risultato</th>
-                            <th>Dettagli Partita</th>
-                        </tr>
-                        </thead>
-                        <tbody>
+                <div class="card mt-auto">
+                    <h3 class="card-title">Partite della stagione:</h3>
+                    {% if squadra.championships %}
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Avversario</th>
+                                <th>Risultato</th>
+                                <th>Dettagli Partita</th>
+                            </tr>
+                            </thead>
+                            <tbody>
                             {% for partita in partite %}
-                                    <tr>
-                                        <td>{{ partita.date|date:"d/m/Y" }}</td>
-                                        {% if squadra == partita.teamA %}
-                                            <td>
-                                                {{ partita.teamB.name }}
-                                                {% if partita.pointsA > partita.pointsB %}
-                                                    <span class="text-success">W</span>
-                                                {% else %}
-                                                    <span class="text-danger">L</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <span class="text-primary">{{ partita.pointsA }}</span>-{{ partita.pointsB }}
-                                            </td>
-                                        {% else %}
-                                            <td>
-                                                {{ partita.teamA.name }}
-                                                {% if partita.pointsA < partita.pointsB %}
-                                                    <span class="text-success">W</span>
-                                                {% else %}
-                                                    <span class="text-danger">L</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {{ partita.pointsB }}-<span class="text-primary">{{ partita.pointsA }}</span>
-                                            </td>
-                                        {% endif %}
+                                <tr>
+                                    <td>{{ partita.date|date:"d/m/Y" }}</td>
+                                    {% if squadra == partita.teamA %}
                                         <td>
-                                            <a href="{% url 'main:match-detail' partita.id %}">
-                                                <i class="fas fa-info-circle"></i>
-                                            </a>
+                                            {{ partita.teamB.name }}
+                                            {% if partita.pointsA > partita.pointsB and partita.tabellinoB %}
+                                                <span class="text-success">W</span>
+                                            {% elif not partita.tabellinoB %}
+                                                <span class="text-dark">-</span>
+                                            {% else %}
+                                                <span class="text-danger">L</span>
+                                            {% endif %}
                                         </td>
-                                    </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p class="text-muted">Nessuna partita registrata per questa squadra</p>
-                {% endif %}
+                                        <td>
+                                            <span class="text-primary">{{ partita.pointsA }}</span>-{{ partita.pointsB }}
+                                        </td>
+                                    {% else %}
+                                        <td>
+                                            {{ partita.teamA.name }}
+                                            {% if partita.pointsA < partita.pointsB and partita.tabellinoA %}
+                                                <span class="text-success">W</span>
+                                            {% elif not partita.tabellinoA %}
+                                                <span class="text-dark">-</span>
+                                            {% else %}
+                                                <span class="text-danger">L</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ partita.pointsB }}-<span
+                                                class="text-primary">{{ partita.pointsA }}</span>
+                                        </td>
+                                    {% endif %}
+                                    <td>
+                                        <a href="{% url 'main:match-detail' partita.id %}">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-muted">Nessuna partita registrata per questa squadra</p>
+                    {% endif %}
+                </div>
+                <div class="card mt-auto">
+                    <h3 class="mb-4">Statistiche squadra:</h3>
+                    {% if media_punti_segnati %}
+                        <div class="text-center">
+                            <p class="card-text"><strong>Media punti segnati:</strong> {{ media_punti_segnati }}</p>
+                            <p class="card-text"><strong>Media punti subiti:</strong> {{ media_punti_subiti }}</p>
+                            <p class="card-text"><strong>Miglior marcatore:</strong> {{ miglior_marcatore }}</p>
+                            <p class="card-text"><strong>Miglior rimbalzista:</strong> {{ rimbalzista }}</p>
+                            <p class="card-text"><strong>Miglior assistman:</strong> {{ assistman }}</p>
+                        </div>
+                    {% else %}
+                        <p class="card-text text-center">Nessuna partita registrata per calcolare le medie.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView
@@ -25,7 +27,6 @@ def home_page(request):
     if request.GET.get('login') == 'ok':
         return render(request, 'home_page.html', context={'benvenuto': request.user.username})
     if request.GET.get('logout') == 'ok':
-        print('hdCBHBHSB')
         return render(request, 'registration/prova.html')
     return render(request, 'home_page.html')
 
@@ -57,7 +58,6 @@ def get_teams(request):
 def get_all_matches(request):
     partite = Match.objects.all()
 
-    print('all')
     for partita in partite:
         data = [{'id': partita.id, 'partita': partita.teamA.name + '-' + partita.teamB.name}]
 
@@ -67,8 +67,6 @@ def get_all_matches(request):
 @user_passes_test(lambda u: u.is_staff)
 def get_matches_by_giornata(request, giornata_id):
     partite = Match.objects.filter(giornata_id=giornata_id)
-
-    print('day')
 
     return JsonResponse({'partite': partite})
 
@@ -94,9 +92,9 @@ def player_search(request):
             if team != '':
                 players = players.filter(team__exact=team)
             if name:
-                players = players.filter(name__icontains=name)
+                players = players.filter(name__istartswith=name)
             if last_name:
-                players = players.filter(last_name__icontains=last_name)
+                players = players.filter(last_name__istartswith=last_name)
 
     else:
         form = PlayerSearchForm()
@@ -129,9 +127,9 @@ class DetailPlayerView(DetailView):
         partite_in_casa, partite_in_casa_giocate = self.get_object().get_partite_in_casa()
         partite_in_trasferta, partite_in_trasferta_giocate = self.get_object().get_partite_in_trasferta()
 
-        ctx['media_punti'] = points / counter if counter != 0 else 0
-        ctx['media_rimbalzi'] = rebounds / counter if counter != 0 else 0
-        ctx['media_assist'] = assists / counter if counter != 0 else 0
+        ctx['media_punti'] = round(points / counter, 2) if counter != 0 else 0
+        ctx['media_rimbalzi'] = round(rebounds / counter, 2) if counter != 0 else 0
+        ctx['media_assist'] = round(assists / counter, 2) if counter != 0 else 0
         ctx['points'] = points
         ctx['rebounds'] = rebounds
         ctx['blocks'] = assists
@@ -139,7 +137,7 @@ class DetailPlayerView(DetailView):
         ctx['partite_in_casa_giocate'] = partite_in_casa_giocate
         ctx['partite_in_trasferta'] = partite_in_trasferta
         ctx['partite_in_trasferta_giocate'] = partite_in_trasferta_giocate
-        ctx['partite'] = partite_in_casa + partite_in_trasferta
+        ctx['partite'] = self.object.get_partite()
         return ctx
 
 
@@ -323,7 +321,14 @@ class DetailTeamView(DetailView):
                 if self.object == partita.teamA or self.object == partita.teamB:
                     partite.append(partita)
         partite.sort(key=lambda x: x.date)
+        segnati, subiti = self.object.get_media_punti_partita()
+        marcatore, rimbalzista, assistman = self.object.get_best_marcatore_rimbalzista_assistman()
         ctx['partite'] = partite
+        ctx['media_punti_segnati'] = segnati
+        ctx['media_punti_subiti'] = subiti
+        ctx['miglior_marcatore'] = marcatore
+        ctx['rimbalzista'] = rimbalzista
+        ctx['assistman'] = assistman
         return ctx
 
 
@@ -392,22 +397,24 @@ class DeleteGiornataView(UserPassesTestMixin, DeleteView):
 
 
 @user_passes_test(lambda u: u.is_staff)
-def create_giornata(request, campionato_id):
-    calendario = ChampionShip.objects.get(pk=campionato_id).calendario
-    num = 0
-    l = []
-    for giornata in calendario.giornate.all():
-        l.append(giornata.num)
-    l.sort()
-    for i in range(1, len(l) + 1):
-        if i not in l:
-#            print('manca il' + str(i))
-            num = i
-            break
-    if num == 0:
-        num = len(l) + 1
-    giornata = Giornata(num=num, calendario_id=calendario.pk)
-    giornata.save()
+def create_giornate(request, campionato_id):
+    if request.method == 'POST':
+        num_giornate = int(request.POST['num_giornate'])
+        for _ in range(num_giornate):
+            calendario = ChampionShip.objects.get(pk=campionato_id).calendario
+            num = 0
+            l = []
+            for giornata in calendario.giornate.all():
+                l.append(giornata.num)
+            l.sort()
+            for i in range(1, len(l) + 1):
+                if i not in l:
+                    num = i
+                    break
+            if num == 0:
+                num = len(l) + 1
+            giornata = Giornata(num=num, calendario_id=calendario.pk)
+            giornata.save()
 
     return redirect('main:dashboard')
 
@@ -557,18 +564,22 @@ def inserisci_statistiche(tabellino, list_stats):
         return
 
 
+
 @login_required
 def create_tabellino(request, match_id, lettera):
     partita = Match.objects.get(pk=match_id)
-    error_str = "<h1>403 Forbidden</h1><h3>Non sei autorizzato a eseguire questa azione. Un tabellino è già stato inserito.</h3>"
+    error_str = "Non sei autorizzato a eseguire questa azione. Un tabellino è già stato inserito."
     if lettera == 'A':
         if partita.tabellinoA and not request.user.is_staff:
-            return HttpResponseForbidden(error_str)
+            return render(request, '403_forbidden.html', context={'errors':error_str})
 
     if lettera == 'B':
         if partita.tabellinoB and not request.user.is_staff:
             return HttpResponseForbidden(
                 error_str)
+
+    if partita.date >= timezone.now():
+        return render(request, '403_forbidden.html', context={'errors': 'La partita non è ancora stata giocata, come hai avuto questo link?!'})
 
     template_name = 'create_tabellino' + lettera + '.html'
     errors = []
@@ -599,7 +610,7 @@ def create_tabellino(request, match_id, lettera):
             if player_id != '':
                 duplicate = False
                 for j in range(0, len(list_inputs) - 1):
-                    if player_id == list_inputs[i][0]:
+                    if player_id == list_inputs[j][0]:
                         duplicate = True
                         break
                 if not duplicate:
@@ -633,7 +644,6 @@ def create_tabellino(request, match_id, lettera):
                     partita.tabellinoB = tabellino
                     partita.pointsB = total_points
             partita.save()
-            #            print(str(tabellino.created_by) + ' ha creato un tabellino')
             return redirect('main:match-detail', pk=match_id)
 
     context = {'players': Player.objects.filter(team_id=partita.teamA.id) if lettera == 'A' else Player.objects.filter(
@@ -651,7 +661,7 @@ def get_pk_player(player):
     players = Player.objects.filter(name=l[0], last_name=l[1], number=int(l[2].replace('#', '')))
     player_id = 0
     if players.count() > 1:
-        print('Errore')
+        -('Errore')
     for player in players:
         player_id = player.pk
     return player_id
@@ -690,12 +700,10 @@ def create_match(request, giornata_id):
         form = CreateMatchForm(request.POST)
         match = Match(giornata_id=giornata_id)
         if form.is_valid():
-            print('form valido')
             teamA = form.cleaned_data.get('teamA')
             teamB = form.cleaned_data.get('teamB')
             date = form.cleaned_data.get('date')
             location = form.cleaned_data.get('location')
-            print(teamA)
             match.teamA = teamA
             match.teamB = teamB
             match.date = date
@@ -704,14 +712,14 @@ def create_match(request, giornata_id):
         else:
             form.fields['teamA'].queryset = Team.objects.filter(championships__calendario__giornate__exact=giornata_id)
             form.fields['teamB'].queryset = Team.objects.filter(championships__calendario__giornate__exact=giornata_id)
-            return render(request, 'create_match.html', context={'form': form})
+            return render(request, 'create_match.html', context={'form': form, 'giornata': Giornata.objects.get(pk=giornata_id)})
         return redirect('main:dashboard')
     else:
         form = CreateMatchForm()
         form.fields['teamA'].queryset = Team.objects.filter(championships__calendario__giornate__exact=giornata_id)
         form.fields['teamB'].queryset = Team.objects.filter(championships__calendario__giornate__exact=giornata_id)
 
-    return render(request, 'create_match.html', context={'form': form})
+    return render(request, 'create_match.html', context={'form': form, 'giornata': Giornata.objects.get(pk=giornata_id)})
 
 
 # class CreateMatchView(UserPassesTestMixin, CreateView):
@@ -734,6 +742,7 @@ class DetailMatchView(DetailView):
             ctx['statsA'] = self.get_object().tabellinoA.get_stats()
         if self.get_object().tabellinoB:
             ctx['statsB'] = self.get_object().tabellinoB.get_stats()
+        ctx['giocata'] = timezone.now() > self.object.date
         return ctx
 
 

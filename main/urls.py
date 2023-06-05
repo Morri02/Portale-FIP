@@ -41,7 +41,7 @@ urlpatterns = [
     path('delete/match/<int:pk>/', DeleteMatchView.as_view(), name='delete-match'),
     path('detail/match/<int:pk>', DetailMatchView.as_view(), name='match-detail'),
 
-    path('create/giornata/<int:campionato_id>/', create_giornata, name='create-giornata'),
+    path('create/giornate/<int:campionato_id>/', create_giornate, name='create-giornate'),
     path('delete/giornata/<int:pk>/', DeleteGiornataView.as_view(), name='delete-giornata'),
 
     path('create/champ/', CreateChampView.as_view(), name='create-championship'),

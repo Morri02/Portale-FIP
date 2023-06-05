@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load tz %}
+
 
 {% block styles %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
@@ -6,87 +8,97 @@
 {% endblock %}
 
 {% block content %}
-    <a class="display-6"
+    <a class="display-5" style="text-decoration: none;"
        href="{% url 'main:detail-calendario' partita.giornata.calendario.pk %}">{{ partita.giornata.calendario }}</a>
-    <h2 class="display-4">{{ partita.teamA }}: {{ partita.pointsA }}</h2>
+    <h2 class="display-4"><a class="text-dark" style="text-decoration: none;" href="{% url 'main:team-detail' partita.teamA_id %}">{{ partita.teamA }}</a>: {{ partita.pointsA }}</h2>
     <h2 class="display-6"> vs </h2>
-    <h2 class="display-4">{{ partita.teamB }}: {{ partita.pointsB }}</h2>
+    <h2 class="display-4"><a class="text-dark" style="text-decoration: none;" href="{% url 'main:team-detail' partita.teamB_id %}">{{ partita.teamB }}</a>: {{ partita.pointsB }}</h2>
+    <h4>{{ partita.date }}</h4>
 
-    <h3 class="mt-4 display-8">{{ partita.teamA.name }}:</h3>
-    {% if partita.tabellinoA %}
-        {% if user.is_superuser %}
-            <a href="{% url 'main:create-nuovo-tabellinoA' partita.id %}" class="btn btn-primary">Inserisci nuovo
-            tabellino</a>
-            <br><a href="{% url 'main:delete-tabellino' partita.tabellinoA.id %}" class="btn btn-outline-danger"
-                   style="margin-top: 20px">Cancella
-            tabellino</a>
-        {% endif %}
-        <table class="table table-striped mt-3">
-            <thead>
-            <tr>
-                <th class="h5">Giocatore</th>
-                <th class="h5">Punti</th>
-                <th class="h5">Rimbalzi</th>
-                <th class="h5">Assists</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for stat in statsA %}
+    {% if giocata %}
+        <h3 class="mt-4 display-8 text-primary">Tabellino di {{ partita.teamA.name }}:</h3>
+        {% if partita.tabellinoA %}
+            {% if user.is_superuser %}
+                <a href="{% url 'main:create-nuovo-tabellinoA' partita.id %}" class="btn btn-primary">Inserisci nuovo
+                    tabellino</a>
+                <br><a href="{% url 'main:delete-tabellino' partita.tabellinoA.id %}" class="btn btn-outline-danger"
+                       style="margin-top: 20px">Cancella
+                tabellino</a>
+            {% endif %}
+            <table class="table table-striped mt-3">
+                <thead>
                 <tr>
-                    {% if stat.player %}
-                        <td><a href="{% url 'main:player-detail' stat.player.id %}"
-                               class="text-decoration-none">{{ stat.player }}</a></td>
-                        <td>{{ stat.points }}</td>
-                        <td>{{ stat.rebounds }}</td>
-                        <td>{{ stat.blocks }}</td>
-                    {% endif %}
+                    <th class="h5">Giocatore</th>
+                    <th class="h5">Punti</th>
+                    <th class="h5">Rimbalzi</th>
+                    <th class="h5">Assists</th>
                 </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p class="lead">Nessun tabellino disponibile per {{ partita.teamA }}.</p>
-        <a href="{% url 'main:create-tabellinoA' partita.id %}" class="btn btn-primary">Inserisci tabellino</a>
+                </thead>
+                <tbody>
+                {% for stat in statsA %}
+                    <tr>
+                        {% if stat.player %}
+                            <td><a href="{% url 'main:player-detail' stat.player.id %}"
+                                   class="text-decoration-none">{{ stat.player }}</a></td>
+                            <td>{{ stat.points }}</td>
+                            <td>{{ stat.rebounds }}</td>
+                            <td>{{ stat.blocks }}</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="lead">Nessun tabellino disponibile per {{ partita.teamA }}.</p>
+            <a href="{% url 'main:create-tabellinoA' partita.id %}" class="btn btn-primary">Inserisci tabellino</a>
+        {% endif %}
     {% endif %}
 
-    <h3 class="mt-4 display-8">{{ partita.teamB.name }}:</h3>
-    {% if partita.tabellinoB %}
-        {% if user.is_superuser %}
-            <a href="{% url 'main:create-nuovo-tabellinoB' partita.id %}" class="btn btn-primary">Inserisci nuovo
-            tabellino</a>
-            <br><a href="{% url 'main:delete-tabellino' partita.tabellinoB.id %}" class="btn btn-outline-danger"
-                   style="margin-top: 20px">Cancella
-            tabellino</a>
-        {% endif %}
-        <table class="table table-striped mt-3">
-            <thead>
-            <tr>
-                <th class="h5">Giocatore</th>
-                <th class="h5">Punti</th>
-                <th class="h5">Rimbalzi</th>
-                <th class="h5">Assists</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for stat in statsB %}
+    {% if giocata %}
+        <h3 class="mt-4 display-8 text-primary">Tabellino di {{ partita.teamB.name }}:</h3>
+        {% if partita.tabellinoB %}
+            {% if user.is_superuser %}
+                <a href="{% url 'main:create-nuovo-tabellinoB' partita.id %}" class="btn btn-primary">Inserisci nuovo
+                    tabellino</a>
+                <br><a href="{% url 'main:delete-tabellino' partita.tabellinoB.id %}" class="btn btn-outline-danger"
+                       style="margin-top: 20px">Cancella
+                tabellino</a>
+            {% endif %}
+            <table class="table table-striped mt-3">
+                <thead>
                 <tr>
-                    {% if stat.player %}
-                        <td><a href="{% url 'main:player-detail' stat.player.id %}"
-                               class="text-decoration-none">{{ stat.player }}</a></td>
-                        <td>{{ stat.points }}</td>
-                        <td>{{ stat.rebounds }}</td>
-                        <td>{{ stat.blocks }}</td>
-                    {% endif %}
+                    <th class="h5">Giocatore</th>
+                    <th class="h5">Punti</th>
+                    <th class="h5">Rimbalzi</th>
+                    <th class="h5">Assists</th>
                 </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p class="lead">Nessun tabellino disponibile per {{ partita.teamB }}.</p>
-        <a href="{% url 'main:create-tabellinoB' partita.id %}" class="btn btn-primary">Inserisci tabellino</a>
+                </thead>
+                <tbody>
+                {% for stat in statsB %}
+                    <tr>
+                        {% if stat.player %}
+                            <td><a href="{% url 'main:player-detail' stat.player.id %}"
+                                   class="text-decoration-none">{{ stat.player }}</a></td>
+                            <td>{{ stat.points }}</td>
+                            <td>{{ stat.rebounds }}</td>
+                            <td>{{ stat.blocks }}</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="lead">Nessun tabellino disponibile per {{ partita.teamB }}.</p>
+            <a href="{% url 'main:create-tabellinoB' partita.id %}" class="btn btn-primary">Inserisci tabellino</a>
+        {% endif %}
     {% endif %}
 
-    <h3 style="margin-top: 50px">Hai visto la partita?? Dicci cosa ne pensi!</h3>
+    {% if giocata %}
+        <h3 style="margin-top: 50px">Hai visto la partita?? Dicci cosa ne pensi!</h3>
+
+    {% else %}
+        <h3 style="margin-top: 50px">Chi vincerà secondo te?? Dicci cosa ne pensi!</h3>
+    {% endif %}
     <form method="POST" action="{% url 'main:add-comment' partita.id %}">
         {% csrf_token %}
         <div class="mb-3">
@@ -136,57 +148,57 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
-<script>
-    $(document).ready(function () {
-        $('.like').click(function () {
-            var commentId = $(this).data('comment-id');
-            $.ajax({
-                url: '{% url 'main:like-comment' %}',
-                type: 'POST',
-                data: {
-                    comment_id: commentId,
-                    action: 'like'
-                },
-                success: function (response) {
-                    if (response.authenticated === false) {
-                        // Utente non autenticato, reindirizza alla pagina di login
-                        window.location.href = "{% url 'users:login' %}?next=" + window.location.href;
-                    } else {
-                        // Aggiorno
-                        var likesCount = response.likes_count;
-                        var dislikesCount = response.dislikes_count;
-                        $('.like[data-comment-id="' + commentId + '"] + span').text(likesCount);
-                        $('.dislike[data-comment-id="' + commentId + '"] + span').text(dislikesCount);
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            $('.like').click(function () {
+                var commentId = $(this).data('comment-id');
+                $.ajax({
+                    url: '{% url 'main:like-comment' %}',
+                    type: 'POST',
+                    data: {
+                        comment_id: commentId,
+                        action: 'like'
+                    },
+                    success: function (response) {
+                        if (response.authenticated === false) {
+                            // Utente non autenticato, reindirizza alla pagina di login
+                            window.location.href = "{% url 'users:login' %}?next=" + window.location.href;
+                        } else {
+                            // Aggiorno
+                            var likesCount = response.likes_count;
+                            var dislikesCount = response.dislikes_count;
+                            $('.like[data-comment-id="' + commentId + '"] + span').text(likesCount);
+                            $('.dislike[data-comment-id="' + commentId + '"] + span').text(dislikesCount);
+                        }
                     }
-                }
+                });
             });
-        });
 
-        $('.dislike').click(function () {
-            var commentId = $(this).data('comment-id');
-            $.ajax({
-                url: '{% url 'main:dislike-comment' %}',
-                type: 'POST',
-                data: {
-                    comment_id: commentId,
-                    action: 'dislike'
-                },
-                success: function (response) {
-                    if (response.authenticated === false) {
-                        // Utente non autenticato, reindirizza alla pagina di login
-                        window.location.href = "{% url 'users:login' %}?next=" + window.location.href;
-                    } else {
-                        // Aggiorno
-                        var likesCount = response.likes_count;
-                        var dislikesCount = response.dislikes_count;
-                        $('.like[data-comment-id="' + commentId + '"] + span').text(likesCount);
-                        $('.dislike[data-comment-id="' + commentId + '"] + span').text(dislikesCount);
+            $('.dislike').click(function () {
+                var commentId = $(this).data('comment-id');
+                $.ajax({
+                    url: '{% url 'main:dislike-comment' %}',
+                    type: 'POST',
+                    data: {
+                        comment_id: commentId,
+                        action: 'dislike'
+                    },
+                    success: function (response) {
+                        if (response.authenticated === false) {
+                            // Utente non autenticato, reindirizza alla pagina di login
+                            window.location.href = "{% url 'users:login' %}?next=" + window.location.href;
+                        } else {
+                            // Aggiorno
+                            var likesCount = response.likes_count;
+                            var dislikesCount = response.dislikes_count;
+                            $('.like[data-comment-id="' + commentId + '"] + span').text(likesCount);
+                            $('.dislike[data-comment-id="' + commentId + '"] + span').text(dislikesCount);
+                        }
                     }
-                }
+                });
             });
         });
-    });
-</script>
+    </script>
 
 {% endblock %}

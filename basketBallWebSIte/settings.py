@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
+from django.conf import global_settings
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -130,3 +132,4 @@ DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 LOGIN_URL = "/auth/login/" #redireziona alla pagina di login se proa a fare qualcosa che serve essere autenticati
 LOGIN_REDIRECT_URL = '/?login=ok'
 LOGOUT_REDIRECT_URL = '/?logout=ok'
+

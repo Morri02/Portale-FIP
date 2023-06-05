@@ -26,8 +26,12 @@
                 </div>
                 <div class="collapse" id="collapse-{{ campionato.pk }}" aria-labelledby="{{ campionato.pk }}">
                     <div class="card-body">
-                        <a style="margin-bottom: 5px" class="btn btn-primary"
-                           href="{% url 'main:create-giornata' campionato.id %}">Aggiungi giornata</a>
+                        <form method="post" action="{% url 'main:create-giornate' campionato.id %}">
+                            {% csrf_token %}
+                                    <input type="number" name="num_giornate" id="num_giornate" min="1"
+                                           class="form-control-sm" required>
+                            <button type="submit" class="btn btn-primary">Aggiungi giornate</button>
+                        </form>
                         {% for giornata in campionato.calendario.giornate.all %}
                             <div class="card mb-3">
                                 <div class="card-header">
@@ -182,7 +186,7 @@
         </table>
     </div>
 
-<div class="table-responsive">
+    <div class="table-responsive">
         <table class="table">
             <tbody>
             <tr>

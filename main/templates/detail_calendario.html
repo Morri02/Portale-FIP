@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load tz %}
+
 
 {% block title %}{{ calendario }}{% endblock %}
 
@@ -45,18 +47,12 @@
                         <li class="list-group-item">
                             <div class="row">
                                 <div class="col"><a
-                                        href="{% url 'main:team-detail' partita.teamA.id %}"> {{ partita.teamA }}</a><br>
-                                    {% if not partita.tabellinoA %}<a
-                                            href="{% url 'main:create-tabellinoA' partita.id %}"> Inserisci
-                                        Tabellino</a>{% endif %}
+                                        href="{% url 'main:team-detail' partita.teamA.id %}" class="text-dark text-lg-left"> {{ partita.teamA }}</a>
                                 </div>
                                 <div class="col text-center">{{ partita.pointsA }} - {{ partita.pointsB }}<br><a
                                         href="{% url 'main:match-detail' partita.id %}">Vedi dettagli</a></div>
                                 <div class="col"><a
-                                        href="{% url 'main:team-detail' partita.teamB.id %}"> {{ partita.teamB }}</a><br>
-                                    {% if not partita.tabellinoB %}<a
-                                            href="{% url 'main:create-tabellinoB' partita.id %}"> Inserisci
-                                        Tabellino</a>{% endif %}
+                                        href="{% url 'main:team-detail' partita.teamB.id %}" class="text-dark text-lg-right"> {{ partita.teamB }}</a>
                                 </div>
                             </div>
                         </li>

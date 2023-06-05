@@ -2,13 +2,6 @@ from .models import *
 from django.core.files import File
 from django.contrib.auth.models import Group
 
-
-def create_groups():
-    players = Group(name='Players')
-    # players.permissions.add()
-    players.save()
-
-
 def check_matches():
     for match in Match.objects.all():
         pointsA = 0
@@ -25,9 +18,24 @@ def check_matches():
             match.pointsB = pointsB
         match.save()
 
+    for match in Match.objects.all():
+        if match.tabellinoA is None:
+            match.pointsA = 0
+            match.save()
+        if not match.tabellinoB:
+            match.pointsB = 0
+            match.save()
+
+    for match in Match.objects.all():
+        if match.date > timezone.now():
+            if match.tabellinoA:
+                match.tabellinoA.delete()
+            if match.tabellinoB:
+                match.tabellinoB.delete()
 
 # Una sorta di garbage collector di stat e tabellini non agganciati più a niente
 def check_stats():
+
     for stat in Stat.objects.all():
         if not stat.valid:
             stat.delete()
@@ -49,14 +57,6 @@ def check_stats():
                 break
         if delete:
             stat.delete()
-
-    for match in Match.objects.all():
-        if match.tabellinoA is None:
-            match.pointsA = 0
-            match.save()
-        if not match.tabellinoB:
-            match.pointsB = 0
-            match.save()
 
     check_matches()
 def erase_db():

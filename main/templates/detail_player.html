@@ -53,7 +53,7 @@
                             <tr>
                                 {% if partita in partite_in_casa %}
                                     <td>
-                                        <a href="{% url 'main:team-detail' partita.teamB.pk %}"> {{ partita.teamB.name }}</a>[{{ partita.pointsA }}-{{ partita.pointsB }}]
+                                        <a href="{% url 'main:match-detail' partita.pk %}"> {{ partita.teamB.name }}</a>[{{ partita.pointsA }}-{{ partita.pointsB }}]
                                     </td>
                                     {% if partita in partite_in_casa_giocate %}
                                         {% for stat in partita.tabellinoA.get_stats %}
@@ -149,7 +149,7 @@
                             puntiData.push({{ stat.points }});
                             rimbalziData.push({{ stat.rebounds }});
                             assistData.push({{ stat.blocks }});
-                            partiteLabels.push("{{ partita.teamB.name }}");
+                            partiteLabels.push("{{ partita.teamB.name }}({{ partita.date.day }}/{{ partita.date.month }})");
                         {% endif %}
                     {% endfor %}
                 {% else %}
@@ -164,7 +164,7 @@
                             puntiData.push({{ stat.points }});
                             rimbalziData.push({{ stat.rebounds }});
                             assistData.push({{ stat.blocks }});
-                            partiteLabels.push("{{ partita.teamA.name }}");
+                            partiteLabels.push("{{ partita.teamA.name }}({{ partita.date.day }}/{{ partita.date.month }})");
                         {% endif %}
                     {% endfor %}
                 {% else %}

@@ -7,8 +7,8 @@ from .models import *
 
 
 class PlayerSearchForm(forms.Form):
-    name = forms.CharField(label="Name", max_length=100, min_length=3, required=False)
-    last_name = forms.CharField(label="Last Name", max_length=100, min_length=3, required=False)
+    name = forms.CharField(label="Name", max_length=100, required=False)
+    last_name = forms.CharField(label="Last Name", max_length=100, required=False)
     championship = forms.ChoiceField(choices=[], required=False)
     team = forms.ChoiceField(choices=[], required=False)
 
@@ -31,7 +31,7 @@ class PlayerSearchForm(forms.Form):
 
 
 class CreateMatchForm(forms.ModelForm):
-    date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    date = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
 
     def clean(self):
         if self.cleaned_data['teamA'] == self.cleaned_data['teamB']:
