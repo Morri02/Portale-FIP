@@ -13,10 +13,10 @@ urlpatterns = [
     path('', home_page, name='homepage'),
     path('about/', about, name='about'),
 
-    path('list/players/', ListPlayerView.as_view(), name='list-players'),
-    path('list/teams/', ListTeamView.as_view(), name='list-teams'),
-    path('list/championships/', ListChampionshipView.as_view(), name='list-championships'),
-    path('list/matches', ListMatchView.as_view(), name='list-matches'),
+    #path('list/players/', ListPlayerView.as_view(), name='list-players'),
+    #path('list/teams/', ListTeamView.as_view(), name='list-teams'),
+    #path('list/championships/', ListChampionshipView.as_view(), name='list-championships'),
+    #path('list/matches', ListMatchView.as_view(), name='list-matches'),
 
     path('players/<int:pk>/', DetailPlayerView.as_view(), name='player-detail'),
     path('teams/<int:pk>/', DetailTeamView.as_view(), name='team-detail'),
@@ -55,22 +55,15 @@ urlpatterns = [
     path('update/team/<int:pk>', UpdateTeamView.as_view(), name='update-team'),
     path('delete/team/<int:pk>', DeleteTeamView.as_view(), name='delete-team'),
 
-    # path('player<int:pk>/count/', count_points, name='points-count'),
 
-    # path('create/stat/', CreateStatView.as_view(), name='create-stat'),
     path('create/tabellinoA/<int:match_id>/', create_tabellinoA, name='create-tabellinoA'),
-    path('create/nuovo/tabellinoA/<int:match_id>/', create_tabellinoA, name='create-nuovo-tabellinoA'),
+    path('create/nuovo/tabellinoA/<int:match_id>/', create_nuovo_tabellinoA, name='create-nuovo-tabellinoA'),
     path('create/tabellinoB/<int:match_id>/', create_tabellinoB, name='create-tabellinoB'),
-    path('create/nuovo/tabellinoB/<int:match_id>/', create_tabellinoB, name='create-nuovo-tabellinoB'),
+    path('create/nuovo/tabellinoB/<int:match_id>/', create_nuovo_tabellinoB, name='create-nuovo-tabellinoB'),
     path('delete/tabellino/<int:pk>', DeleteTabellinoView.as_view(), name='delete-tabellino'),
 
     path('detail/campionato/<int:pk>', DetailCalendarioView.as_view(), name='detail-calendario'),
-
-
     path('dashboard/', dashboard_view, name='dashboard'),
-
-    path('get/all/matches', get_all_matches, name='all-matches'),
-    path('get/day<int:day_id>/matches', get_matches_by_giornata, name='day-matches'),
 
     path('add/comment/<int:match_id>', add_comment, name='add-comment'),
     path('delete/commento/<int:comment_id>/', delete_comment, name='delete-comment'),

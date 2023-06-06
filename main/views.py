@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponseForbidden
 from django.urls import reverse_lazy, reverse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
 from .models import *
 from .forms import *
@@ -38,8 +38,7 @@ def test_base(request):
 
 ########################################################################################################################
 # Retrieve functions
-
-# @user_passes_test(lambda u: u.is_staff)
+@require_GET
 def get_teams(request):
     championship = request.GET.get('championship')
     if championship == '':
@@ -52,23 +51,6 @@ def get_teams(request):
     team_data = [{'id': '', 'name': 'Tutte le Squadre'}] + [{'id': team.id, 'name': team.name} for team in teams]
 
     return JsonResponse({'teams': team_data})
-
-
-@user_passes_test(lambda u: u.is_staff)
-def get_all_matches(request):
-    partite = Match.objects.all()
-
-    for partita in partite:
-        data = [{'id': partita.id, 'partita': partita.teamA.name + '-' + partita.teamB.name}]
-
-    return JsonResponse({'data': data})
-
-
-@user_passes_test(lambda u: u.is_staff)
-def get_matches_by_giornata(request, giornata_id):
-    partite = Match.objects.filter(giornata_id=giornata_id)
-
-    return JsonResponse({'partite': partite})
 
 
 # Actual views
@@ -172,6 +154,7 @@ class CreatePlayerView(UserPassesTestMixin, CreateView):
     def test_func(self):
         return self.request.user.is_staff
 
+
 @user_passes_test(lambda u: u.is_staff)
 def add_player(request, team_id):
     if request.method == 'POST':
@@ -195,8 +178,9 @@ def add_player(request, team_id):
 
         return render(request, 'add_player.html', context={'form': form, 'squadra': Team.objects.get(pk=team_id)})
 
+
 ##################################################################################################################
-#Coach
+# Coach
 
 
 class DeleteCoachView(UserPassesTestMixin, DeleteView):
@@ -221,6 +205,7 @@ class UpdateCoachView(UserPassesTestMixin, UpdateView):
     def test_func(self):
         return self.request.user.is_staff
 
+
 class CreateCoachView(UserPassesTestMixin, CreateView):
     model = Coach
     fields = '__all__'
@@ -229,7 +214,6 @@ class CreateCoachView(UserPassesTestMixin, CreateView):
 
     def test_func(self):
         return self.request.user.is_staff
-
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -254,31 +238,37 @@ def add_coach(request, team_id):
         return render(request, 'add_coach.html', context={'form': form, 'squadra': Team.objects.get(pk=team_id)})
 
 
-
-
 ########################################################################################################################
 # Teams
 
-class DeleteTeamView(DeleteView):
+class DeleteTeamView(UserPassesTestMixin, DeleteView):
     model = Team
     template_name = 'delete_team.html'
     success_url = reverse_lazy('main:dashboard')
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class UpdateTeamView(UpdateView):
+class UpdateTeamView(UserPassesTestMixin, UpdateView):
     model = Team
     fields = '__all__'
     template_name = 'update_team.html'
     success_url = reverse_lazy('main:dashboard')
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class CreateTeamView(CreateView):
+class CreateTeamView(UserPassesTestMixin, CreateView):
     model = Team
     fields = '__all__'
     template_name = 'create_team.html'
     success_url = reverse_lazy('main:dashboard')
 
+    def test_func(self):
+        return self.request.user.is_staff
 
+
+@user_passes_test(lambda u: u.is_staff)
 def add_team(request, campionato_id):
     if request.method == 'POST':
         form = AddTeamForm(request.POST)
@@ -346,6 +336,7 @@ class UpdateChampView(UserPassesTestMixin, UpdateView):
         return self.request.user.is_staff
 
 
+@user_passes_test(lambda u: u.is_staff)
 def delete_champ_all(request, champ_id):
     champ = ChampionShip.objects.get(pk=champ_id)
     for team in champ.teams.all():
@@ -564,14 +555,13 @@ def inserisci_statistiche(tabellino, list_stats):
         return
 
 
-
 @login_required
 def create_tabellino(request, match_id, lettera):
     partita = Match.objects.get(pk=match_id)
     error_str = "Non sei autorizzato a eseguire questa azione. Un tabellino è già stato inserito."
     if lettera == 'A':
         if partita.tabellinoA and not request.user.is_staff:
-            return render(request, '403_forbidden.html', context={'errors':error_str})
+            return render(request, '403_forbidden.html', context={'errors': error_str})
 
     if lettera == 'B':
         if partita.tabellinoB and not request.user.is_staff:
@@ -579,7 +569,8 @@ def create_tabellino(request, match_id, lettera):
                 error_str)
 
     if partita.date >= timezone.now():
-        return render(request, '403_forbidden.html', context={'errors': 'La partita non è ancora stata giocata, come hai avuto questo link?!'})
+        return render(request, '403_forbidden.html',
+                      context={'errors': 'La partita non è ancora stata giocata, come hai avuto questo link?!'})
 
     template_name = 'create_tabellino' + lettera + '.html'
     errors = []
@@ -615,7 +606,7 @@ def create_tabellino(request, match_id, lettera):
                         break
                 if not duplicate:
                     list_stats.append(Stat(player_id=player_id, points=points, rebounds=rebounds,
-                                       blocks=blocks))
+                                           blocks=blocks))
                 else:
                     errors.append(f'Errore: Il giocatore {i} è stato inserito più di una volta')
                     list_stats.append(None)
@@ -712,14 +703,16 @@ def create_match(request, giornata_id):
         else:
             form.fields['teamA'].queryset = Team.objects.filter(championships__calendario__giornate__exact=giornata_id)
             form.fields['teamB'].queryset = Team.objects.filter(championships__calendario__giornate__exact=giornata_id)
-            return render(request, 'create_match.html', context={'form': form, 'giornata': Giornata.objects.get(pk=giornata_id)})
+            return render(request, 'create_match.html',
+                          context={'form': form, 'giornata': Giornata.objects.get(pk=giornata_id)})
         return redirect('main:dashboard')
     else:
         form = CreateMatchForm()
         form.fields['teamA'].queryset = Team.objects.filter(championships__calendario__giornate__exact=giornata_id)
         form.fields['teamB'].queryset = Team.objects.filter(championships__calendario__giornate__exact=giornata_id)
 
-    return render(request, 'create_match.html', context={'form': form, 'giornata': Giornata.objects.get(pk=giornata_id)})
+    return render(request, 'create_match.html',
+                  context={'form': form, 'giornata': Giornata.objects.get(pk=giornata_id)})
 
 
 # class CreateMatchView(UserPassesTestMixin, CreateView):
@@ -752,19 +745,25 @@ class ListMatchView(ListView):
     context_object_name = 'partite'
 
 
-class UpdateMatchView(UpdateView):
+class UpdateMatchView(UserPassesTestMixin, UpdateView):
     model = Match
     template_name = 'update_match.html'
     context_object_name = 'match'
     success_url = reverse_lazy('main:dashboard')
     fields = ['date', 'location', 'giornata']
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class DeleteMatchView(DeleteView):
+
+class DeleteMatchView(UserPassesTestMixin, DeleteView):
     model = Match
     template_name = 'delete_match.html'
     context_object_name = 'match'
     success_url = reverse_lazy('main:dashboard')
+
+    def test_func(self):
+        return self.request.user.is_staff
 
 
 ########################################################################################################################
@@ -782,6 +781,7 @@ def dashboard_view(request):
 
 ########################################################################################################################
 # Commenti
+@user_passes_test(lambda u: u.is_staff)
 def delete_comment(request, comment_id):
     commento = get_object_or_404(Commento, id=comment_id)
 
