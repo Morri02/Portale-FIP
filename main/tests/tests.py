@@ -223,11 +223,8 @@ class DashBoardTest(TestCase):
         self.client.login(username='admin', password='admin')
 
         #       Creo altre due giornate(la 2 e la 3)
-        response = self.client.post(reverse('main:create-giornata', args=[self.campionato.id]))
+        response = self.client.post(reverse('main:create-giornate', args=[self.campionato.id]), {'num_giornate': 2})
         self.assertEqual(response.status_code, 302)
-        response = self.client.post(reverse('main:create-giornata', args=[self.campionato.id]))
-        self.assertEqual(response.status_code, 302)
-
         giornata2 = Giornata.objects.get(calendario_id=self.calendario.id, num=2)
         self.assertIsNotNone(giornata2)
         giornata3 = Giornata.objects.get(calendario_id=self.calendario.id, num=3)
@@ -235,7 +232,7 @@ class DashBoardTest(TestCase):
 
         # Cancello la prima
         giornata2.delete()
-        response = self.client.post(reverse('main:create-giornata', args=[self.campionato.id]))
+        response = self.client.post(reverse('main:create-giornate', args=[self.campionato.id]), {'num_giornate': 1})
         self.assertEqual(response.status_code, 302)
         giornata2 = Giornata.objects.get(calendario_id=self.calendario.id, num=2)
         self.assertIsNotNone(giornata2)
