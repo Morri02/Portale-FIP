@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
+{% load l10n %}
 {% load tz %}
-
+{% load i18n %}
 
 {% block styles %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
@@ -13,7 +14,7 @@
     <h2 class="display-4"><a class="text-dark" style="text-decoration: none;" href="{% url 'main:team-detail' partita.teamA_id %}">{{ partita.teamA }}</a>: {{ partita.pointsA }}</h2>
     <h2 class="display-6"> vs </h2>
     <h2 class="display-4"><a class="text-dark" style="text-decoration: none;" href="{% url 'main:team-detail' partita.teamB_id %}">{{ partita.teamB }}</a>: {{ partita.pointsB }}</h2>
-    <h4>{{ partita.date }}</h4>
+    <h4>{{ partita.date|date:"d M Y" }}  {{ partita.date|time:"H:i" }}</h4>
 
     {% if giocata %}
         <h3 class="mt-4 display-8 text-primary">Tabellino di {{ partita.teamA.name }}:</h3>

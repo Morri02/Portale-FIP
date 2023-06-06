@@ -7,10 +7,10 @@ from .models import *
 
 
 class PlayerSearchForm(forms.Form):
-    name = forms.CharField(label="Name", max_length=100, required=False)
-    last_name = forms.CharField(label="Last Name", max_length=100, required=False)
-    championship = forms.ChoiceField(choices=[], required=False)
-    team = forms.ChoiceField(choices=[], required=False)
+    last_name = forms.CharField(label="Cognome", max_length=100, required=False)
+    name = forms.CharField(label="Nome", max_length=100, required=False)
+    championship = forms.ChoiceField(label='Campionato', choices=[], required=False)
+    team = forms.ChoiceField(label='Squadra', choices=[], required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

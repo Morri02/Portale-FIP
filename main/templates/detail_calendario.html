@@ -6,16 +6,17 @@
 
 {% block content %}
     <div class="container">
-        <h2 class="mb-4">Classifica</h2>
+    <strong class="display-1 text-primary">{{ calendario }}</strong>
+        <h2 class="mb-4" style="margin-top: 30px">Classifica</h2>
         {% if classifica %}
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th>Rank</th>
-                    <th>Team</th>
-                    <th>Wins</th>
-                    <th>Losses</th>
-                    <th>Points</th>
+                    <th>Pos</th>
+                    <th>Squadra</th>
+                    <th>Vittorie</th>
+                    <th>Sconfitte</th>
+                    <th>Punti</th>
                 </tr>
                 </thead>
                 <tbody>

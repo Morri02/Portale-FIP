@@ -7,19 +7,29 @@
         {% csrf_token %}
         {{ form }}
         <br>
-        <button type="submit">Search</button>
+        <button type="submit">Cerca</button>
     </form>
 
-    <h2>Search Results</h2>
+    <h2>Giocatori Trovati</h2>
+
     {% if players %}
-        <ul>
+        <ul class="list-group align-items-center">
             {% for player in players %}
-                <li>
-                    <strong><a href="{% url 'main:player-detail' player.id %}"> {{ player }}</a></strong>
-                    - {{ player.team.name }}
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong style="margin-right: 10px"><a
+                                href="{% url 'main:player-detail' player.id %}">{{ player }}</a>-{{ player.team.name }}
+                        </strong>
+                        {% if request.user.is_staff %}
+                            <div>
+                                <a href="{% url 'main:update-player' player.id %}" class="btn btn-sm btn-warning">Modifica</a>
+                                <a href="{% url 'main:delete-player' player.id %}" class="btn btn-sm btn-danger">Cancella</a>
+                            </div>
+                        {% endif %}
+                    </div>
                 </li>
             {% empty %}
-                <li class="no-results">No players found.</li>
+                <li class="list-group-item no-results">Nessun giocatore trovato.</li>
             {% endfor %}
         </ul>
     {% else %}
